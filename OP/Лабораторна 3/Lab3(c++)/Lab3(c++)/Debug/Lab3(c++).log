@@ -1,0 +1,4 @@
+﻿  Source.cpp
+C:\Users\User\source\repos\KPI\OP\Lab3\Lab3(c++)\Lab3(c++)\Source.cpp(42,19): warning C4244: инициализация: преобразование "long double" в "__int64", возможна потеря данных
+C:\Users\User\source\repos\KPI\OP\Lab3\Lab3(c++)\Lab3(c++)\Source.cpp(51,38): warning C4244: *=: преобразование "long double" в "__int64", возможна потеря данных
+  Lab3(c++).vcxproj -> C:\Users\User\source\repos\KPI\OP\Lab3\Lab3(c++)\Debug\Lab3(c++).exe
