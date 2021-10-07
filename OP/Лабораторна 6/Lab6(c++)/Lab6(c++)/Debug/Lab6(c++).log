@@ -1,0 +1,4 @@
+﻿  Source.cpp
+C:\Users\User\source\repos\KPI\OP\Lab6\Lab6(c++)\Lab6(c++)\Source.cpp(40,1): warning C4326: возвращаемый тип "main" должен быть "int", а не "void"
+C:\Users\User\source\repos\KPI\OP\Lab6\Lab6(c++)\Lab6(c++)\Source.cpp(24): warning C4715: factorial: значение возвращается не при всех путях выполнения
+  Lab6(c++).vcxproj -> C:\Users\User\source\repos\KPI\OP\Lab6\Lab6(c++)\Debug\Lab6(c++).exe
