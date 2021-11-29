@@ -1,3 +1,5 @@
 ﻿  Source.cpp
-C:\Users\User\source\repos\KPI\OP\Lab7\lab7(c++)\lab7(c++)\Source.cpp(38,1): warning C4326: возвращаемый тип "main" должен быть "int", а не "void"
+C:\Users\User\source\repos\KPI\OP\Lab7\lab7(c++)\lab7(c++)\Source.cpp(4,10): warning C4067: непредвиденные лексемы за директивой препроцессора, требуется newline
+C:\Users\User\source\repos\KPI\OP\Lab7\lab7(c++)\lab7(c++)\Source.cpp(25,1): warning C4326: возвращаемый тип "main" должен быть "int", а не "void"
+C:\Users\User\source\repos\KPI\OP\Lab7\lab7(c++)\lab7(c++)\Source.cpp(26,12): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
   lab7(c++).vcxproj -> C:\Users\User\source\repos\KPI\OP\Lab7\lab7(c++)\Debug\lab7(c++).exe
