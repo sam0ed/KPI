@@ -1,0 +1,16 @@
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab1\Lab1(sharp)\Lab1(sharp)\bin\Debug\net5.0\Lab1(sharp).exe
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab1\Lab1(sharp)\Lab1(sharp)\bin\Debug\net5.0\Lab1(sharp).deps.json
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab1\Lab1(sharp)\Lab1(sharp)\bin\Debug\net5.0\Lab1(sharp).runtimeconfig.json
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab1\Lab1(sharp)\Lab1(sharp)\bin\Debug\net5.0\Lab1(sharp).runtimeconfig.dev.json
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab1\Lab1(sharp)\Lab1(sharp)\bin\Debug\net5.0\Lab1(sharp).dll
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab1\Lab1(sharp)\Lab1(sharp)\bin\Debug\net5.0\ref\Lab1(sharp).dll
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab1\Lab1(sharp)\Lab1(sharp)\bin\Debug\net5.0\Lab1(sharp).pdb
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab1\Lab1(sharp)\Lab1(sharp)\obj\Debug\net5.0\Lab1(sharp).csproj.AssemblyReference.cache
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab1\Lab1(sharp)\Lab1(sharp)\obj\Debug\net5.0\Lab1(sharp).GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab1\Lab1(sharp)\Lab1(sharp)\obj\Debug\net5.0\Lab1(sharp).AssemblyInfoInputs.cache
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab1\Lab1(sharp)\Lab1(sharp)\obj\Debug\net5.0\Lab1(sharp).AssemblyInfo.cs
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab1\Lab1(sharp)\Lab1(sharp)\obj\Debug\net5.0\Lab1(sharp).csproj.CoreCompileInputs.cache
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab1\Lab1(sharp)\Lab1(sharp)\obj\Debug\net5.0\Lab1(sharp).dll
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab1\Lab1(sharp)\Lab1(sharp)\obj\Debug\net5.0\ref\Lab1(sharp).dll
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab1\Lab1(sharp)\Lab1(sharp)\obj\Debug\net5.0\Lab1(sharp).pdb
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab1\Lab1(sharp)\Lab1(sharp)\obj\Debug\net5.0\Lab1(sharp).genruntimeconfig.cache
