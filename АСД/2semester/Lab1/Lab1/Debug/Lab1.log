@@ -1,0 +1,4 @@
+﻿  Source.cpp
+C:\Users\User\source\repos\KPI\ASD\2semester\Lab1\Lab1\Source.cpp(21,12): warning C4244: аргумент: преобразование "time_t" в "unsigned int", возможна потеря данных
+C:\Users\User\source\repos\KPI\ASD\2semester\Lab1\Lab1\Source.cpp(106,27): warning C4244: =: преобразование "double" в "int", возможна потеря данных
+  Lab1.vcxproj -> C:\Users\User\source\repos\KPI\ASD\2semester\Lab1\Debug\Lab1.exe
