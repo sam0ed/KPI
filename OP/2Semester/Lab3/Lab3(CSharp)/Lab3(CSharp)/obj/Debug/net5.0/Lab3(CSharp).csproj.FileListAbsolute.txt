@@ -1,0 +1,16 @@
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab3\Lab3(CSharp)\Lab3(CSharp)\bin\Debug\net5.0\Lab3(CSharp).exe
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab3\Lab3(CSharp)\Lab3(CSharp)\bin\Debug\net5.0\Lab3(CSharp).deps.json
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab3\Lab3(CSharp)\Lab3(CSharp)\bin\Debug\net5.0\Lab3(CSharp).runtimeconfig.json
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab3\Lab3(CSharp)\Lab3(CSharp)\bin\Debug\net5.0\Lab3(CSharp).runtimeconfig.dev.json
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab3\Lab3(CSharp)\Lab3(CSharp)\bin\Debug\net5.0\Lab3(CSharp).dll
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab3\Lab3(CSharp)\Lab3(CSharp)\bin\Debug\net5.0\ref\Lab3(CSharp).dll
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab3\Lab3(CSharp)\Lab3(CSharp)\bin\Debug\net5.0\Lab3(CSharp).pdb
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab3\Lab3(CSharp)\Lab3(CSharp)\obj\Debug\net5.0\Lab3(CSharp).csproj.AssemblyReference.cache
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab3\Lab3(CSharp)\Lab3(CSharp)\obj\Debug\net5.0\Lab3(CSharp).GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab3\Lab3(CSharp)\Lab3(CSharp)\obj\Debug\net5.0\Lab3(CSharp).AssemblyInfoInputs.cache
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab3\Lab3(CSharp)\Lab3(CSharp)\obj\Debug\net5.0\Lab3(CSharp).AssemblyInfo.cs
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab3\Lab3(CSharp)\Lab3(CSharp)\obj\Debug\net5.0\Lab3(CSharp).csproj.CoreCompileInputs.cache
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab3\Lab3(CSharp)\Lab3(CSharp)\obj\Debug\net5.0\Lab3(CSharp).dll
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab3\Lab3(CSharp)\Lab3(CSharp)\obj\Debug\net5.0\ref\Lab3(CSharp).dll
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab3\Lab3(CSharp)\Lab3(CSharp)\obj\Debug\net5.0\Lab3(CSharp).pdb
+C:\Users\User\source\repos\KPI\OP\2Semester\Lab3\Lab3(CSharp)\Lab3(CSharp)\obj\Debug\net5.0\Lab3(CSharp).genruntimeconfig.cache
