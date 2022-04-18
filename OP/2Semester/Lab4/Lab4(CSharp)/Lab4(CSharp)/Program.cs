@@ -17,6 +17,7 @@ namespace Lab4_CSharp_
             Triangle thirdTr = new Triangle(new Line(new Point(3.0, 4.0), new Point(3.0, 8.0)),
                 new Line(new Point(3.0, 8.0), new Point(6.0, 4.0)));
             thirdTr.PrintTriangle("thirdTr");
+            Console.Read();
         }
     }
 }
