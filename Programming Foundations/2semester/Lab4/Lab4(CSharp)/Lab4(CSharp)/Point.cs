@@ -16,7 +16,7 @@ namespace Lab4_CSharp_
         }
         public void PrintPoint()
         {
-            Console.Write($" ( x: {Coordinates.X} y: {Coordinates.Y} )");
+            Console.Write($" ( x: {Math.Round(Coordinates.X, 3)} y: {Math.Round(Coordinates.Y, 3)} )");
         }
         public static bool operator ==(Point a, Point b) => a.Coordinates.X == b.Coordinates.X && a.Coordinates.Y == b.Coordinates.Y;
         public static bool operator !=(Point a, Point b) => a.Coordinates.X != b.Coordinates.X && a.Coordinates.Y != b.Coordinates.Y;

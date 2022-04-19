@@ -15,18 +15,18 @@ namespace Lab4_CSharp_
             Endings = (a, b);
             Length = Math.Sqrt(Math.Pow(Endings.A.Coordinates.X - Endings.B.Coordinates.X, 2) + Math.Pow(Endings.A.Coordinates.Y - Endings.B.Coordinates.Y, 2));
         }
-       
-        public static Line operator++(Line line)
+
+        public static Line operator ++(Line line)
         {
             line.ResizeLine(1.0);
             return line;
         }
-        public static Line operator--(Line line)
+        public static Line operator --(Line line)
         {
             line.ResizeLine(-1.0);
             return line;
         }
-        public static Line operator+(Line line, double value)
+        public static Line operator +(Line line, double value)
         {
             line.ResizeLine(value);
             return line;
@@ -48,7 +48,7 @@ namespace Lab4_CSharp_
                     this.Endings.A.Coordinates = (this.Endings.A.Coordinates.X + unitVectorX * value, this.Endings.A.Coordinates.Y + unitVectorY * value);
                 }
             }
-            else if(side=="B")
+            else if (side == "B")
             {
                 double unitVectorY = (this.Endings.B.Coordinates.Y - this.Endings.A.Coordinates.Y) / this.Length; //розраховуємо у частину юніт вектора поточного відрізка
                 double unitVectorX = (this.Endings.B.Coordinates.X - this.Endings.A.Coordinates.X) / this.Length;
@@ -66,7 +66,7 @@ namespace Lab4_CSharp_
             Console.Write("\t");
             Endings.B.PrintPoint();
             Console.Write("\n");
-            Console.WriteLine($"Length : {this.Length} ");
+            Console.WriteLine($"Length : {Math.Round(this.Length, 3)} ");
         }
     }
 }

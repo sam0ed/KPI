@@ -16,14 +16,16 @@ namespace Lab4_CSharp_
         {
             Vertices = (a, b, c);
             Sides = new[] { new Line(a, b), new Line(b, c), new Line(a, c) };
+            CalculateArea();
         }
         public Triangle(Line a, Line b, Line c)
         {
             Point last = a.Endings.A == b.Endings.A ? b.Endings.B : b.Endings.A;
             Vertices = (a.Endings.A, a.Endings.B, last);
             Sides = new[] { a, b, c };
+            CalculateArea();
         }
-        public Triangle(Line a, Line b) : this(a.Endings.A, a.Endings.B, (b.Endings.A == a.Endings.A||b.Endings.A==a.Endings.B) ? b.Endings.B : b.Endings.A) { }
+        public Triangle(Line a, Line b) : this(a.Endings.A, a.Endings.B, (b.Endings.A == a.Endings.A || b.Endings.A == a.Endings.B) ? b.Endings.B : b.Endings.A) { }
         #endregion constructorOverloads
 
         #region operatorOverloads
@@ -76,14 +78,18 @@ namespace Lab4_CSharp_
                     }
                 }
                 thirdSide[0].Endings = (newThirdSideCoord[0], newThirdSideCoord[1]);
+                thirdSide[0].Length = Math.Sqrt(Math.Pow(thirdSide[0].Endings.A.Coordinates.X - thirdSide[0].Endings.B.Coordinates.X, 2)
+                    + Math.Pow(thirdSide[0].Endings.A.Coordinates.Y - thirdSide[0].Endings.B.Coordinates.Y, 2));
             }
+            this.CalculateArea();
         }
 
-        public double CalculateArea()
+        public void CalculateArea()
         {
             //Gerons formula
             double p = (Sides[0].Length + Sides[1].Length + Sides[2].Length) / 2;
-            return Math.Sqrt(p * (p - Sides[0].Length) * (p - Sides[1].Length) * (p - Sides[2].Length));
+            Area = Math.Sqrt(p * (p - Sides[0].Length) * (p - Sides[1].Length) * (p - Sides[2].Length));
+
         }
         public void PrintTriangle(string triangleIdentifyer)
         {
@@ -92,7 +98,7 @@ namespace Lab4_CSharp_
             {
                 item.PrintLine();
             }
-            Console.WriteLine($"Area : {CalculateArea()}");
+            Console.WriteLine($"Area : {Math.Round(Area, 3)}");
 
         }
         #endregion methods
