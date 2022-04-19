@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Lab4(CSharp)": {
+      "commandName": "Project"
+    },
+    "WSL": {
+      "commandName": "WSL2",
+      "environmentVariables": {},
+      "distributionName": ""
+    }
+  }
+}
