@@ -41,6 +41,7 @@ namespace Lab5_CSharp_
             }
             Console.Write("\n");
         }
+
         static TIntNumber[] ConsoleReadFabricMethod(Type readableType)
         {
             Console.WriteLine($"Enter {readableType.ToString()} : ");
