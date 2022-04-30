@@ -18,10 +18,10 @@ namespace Lab5_CSharp_
         #endregion
 
         #region Constructors
-        public TIntNumber(string v, int b)
+        protected TIntNumber(string v, int b)
         {
             Value = v;
-            Base = 0;
+            Base = b;
         }
         #endregion
 
@@ -45,6 +45,7 @@ namespace Lab5_CSharp_
             int number = Convert.ToInt32(this.Value, this.Base);
             return number;
         }
+        public void Print() => Console.Write($"({Value} - {ConvertToDecimal()}) ");
         #endregion
     }
 }
