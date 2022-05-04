@@ -7,8 +7,8 @@ namespace Lab5_CSharp_
     {
         static void Main(string[] args)
         {
-            TIntNumber[] binary = ConsoleReadFabricMethod(typeof(TIntNumber2));
-            TIntNumber[] hexodecimal = ConsoleReadFabricMethod(typeof(TIntNumber16));
+            TIntNumber[] binary = GetTIntNumberFromConsole(new BinaryFactory());
+            TIntNumber[] hexodecimal = GetTIntNumberFromConsole(new HexodecimalFactory());
 
             binary.ToList().ForEach(x => x++);
             hexodecimal.ToList().ForEach(x => x--);
@@ -42,28 +42,14 @@ namespace Lab5_CSharp_
             Console.Write("\n");
         }
 
-        static TIntNumber[] ConsoleReadFabricMethod(Type readableType)
+        static TIntNumber[] GetTIntNumberFromConsole(Factory myFact)
         {
-            Console.WriteLine($"Enter {readableType.ToString()} : ");
+            Console.WriteLine($"Enter {myFact.Name} : ");
             string[] m = Console.ReadLine().Split(' ');
             TIntNumber[] result = new TIntNumber[m.Length];
-            if (readableType == typeof(TIntNumber2))
+            for (int i = 0; i < m.Length; i++)
             {
-                for (int i = 0; i < m.Length; i++)
-                {
-                    result[i] = new TIntNumber2(m[i]);
-                }
-            }
-            else if (readableType == typeof(TIntNumber16))
-            {
-                for (int i = 0; i < m.Length; i++)
-                {
-                    result[i] = new TIntNumber16(m[i]);
-                }
-            }
-            else
-            {
-                throw new Exception("Wrong type was passed for reading");
+                result[i] = myFact.FactoryMethod(m[i]);
             }
             return result;
         }
