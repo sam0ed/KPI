@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{f18a1d42-d1f9-49e6-939a-55e630a4d426}</ProjectGuid>
-    <RootNamespace>AgorithmPractice</RootNamespace>
+    <ProjectGuid>{b3233b42-d54c-432d-9c18-61e0750b95bc}</ProjectGuid>
+    <RootNamespace>SortingAlgorithmPractice</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -139,21 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="heapS.cpp" />
-    <ClCompile Include="mergeS.cpp" />
-    <ClCompile Include="quickS.cpp" />
-    <ClCompile Include="shakerS.cpp" />
-    <ClCompile Include="shellS.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="general.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="general.h" />
-    <ClInclude Include="heapS.h" />
-    <ClInclude Include="mergeS.h" />
-    <ClInclude Include="quickS.h" />
-    <ClInclude Include="shakerS.h" />
-    <ClInclude Include="shellS.h" />
+    <ClCompile Include="SortingAlgorithmPractice.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
