@@ -15,8 +15,46 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SortingAlgorithmPractice.cpp">
+    <ClCompile Include="general.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="heapS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mergeS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="quickS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shakerS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shellS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="general.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="heapS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mergeS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="quickS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shakerS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shellS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

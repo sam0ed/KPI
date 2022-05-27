@@ -139,7 +139,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="SortingAlgorithmPractice.cpp" />
+    <ClCompile Include="general.cpp" />
+    <ClCompile Include="heapS.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="mergeS.cpp" />
+    <ClCompile Include="quickS.cpp" />
+    <ClCompile Include="shakerS.cpp" />
+    <ClCompile Include="shellS.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="general.h" />
+    <ClInclude Include="heapS.h" />
+    <ClInclude Include="mergeS.h" />
+    <ClInclude Include="quickS.h" />
+    <ClInclude Include="shakerS.h" />
+    <ClInclude Include="shellS.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
