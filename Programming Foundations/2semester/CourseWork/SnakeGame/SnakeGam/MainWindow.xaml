@@ -1,0 +1,42 @@
+﻿<Window x:Class="SnakeGame.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SnakeGame"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="350"
+        WindowStartupLocation="CenterScreen">
+   
+    <Grid x:Name="MenuGrid" >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="2*"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        
+        <StackPanel Grid.Row="1" Grid.Column="1">
+            <StackPanel.Resources>
+                <Style x:Key="MenuButton">
+                    <Setter Property="Button.FontFamily" Value="Arial"/>
+                    <Setter Property="Button.BorderThickness" Value="2"/>
+                    <Setter Property="Button.Height" Value="50"/>
+                </Style>
+            </StackPanel.Resources>
+            <Button Content="Play"
+                    Style="{StaticResource MenuButton}"
+                    Click="StartGameClick"/>
+            <Button Content="Difficulty"
+                    Style="{StaticResource MenuButton}"/>
+            <Button Content="Statistics"
+                    Style="{StaticResource MenuButton}"/>
+        
+        </StackPanel>
+    </Grid>
+
+</Window>

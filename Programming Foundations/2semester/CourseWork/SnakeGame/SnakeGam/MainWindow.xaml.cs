@@ -24,5 +24,11 @@ namespace SnakeGame
         {
             InitializeComponent();
         }
+
+        private void StartGameClick(object sender, RoutedEventArgs e)
+        {
+            SnakeGameWindow snake = new SnakeGameWindow();
+            snake.Show();
+        }
     }
 }
