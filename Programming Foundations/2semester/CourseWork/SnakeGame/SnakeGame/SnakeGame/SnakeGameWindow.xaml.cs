@@ -22,6 +22,20 @@ namespace SnakeGame
         public SnakeGameWindow()
         {
             InitializeComponent();
+            SnakeFieldCellsInit();
+        }
+
+        public void SnakeFieldCellsInit()
+        {
+            for (int i = 0; i < SnakeField.RowDefinitions.Count; i++)
+            {
+                for (int j = 0; j < SnakeField.ColumnDefinitions.Count; j++)
+                {
+                    Canvas canvas = new Canvas();
+                    canvas.Background = Brushes.Azure;
+                    SnakeField.Children.Add(canvas);
+                }
+            }
         }
 
     }

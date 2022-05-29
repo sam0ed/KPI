@@ -23,7 +23,7 @@
 
         <Grid Grid.Column="1" Grid.Row="2" Height="400" Width="400"
               ShowGridLines="True"
-              >
+              Name="SnakeField">
             <Grid.Resources>
                 <Style TargetType="ColumnDefinition">
                     <Setter Property="Width" Value="*"></Setter>
@@ -66,7 +66,7 @@
                 <RowDefinition></RowDefinition>
                 <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
-            <Border BorderThickness="5"
+            <Border BorderThickness="3"
                     BorderBrush="LimeGreen"
                     Grid.ColumnSpan="20"
                     Grid.RowSpan="20">
