@@ -6,6 +6,7 @@
         {
             string fileName = "SomeProgram";
             Console.WriteLine("Enter the code of program in C/C++ (do not create identifiers with the same name but different nested level) :");
+            Console.WriteLine();
             List<string> input = new List<string>(ReadMultilineInp());
             using (StreamWriter writer = new StreamWriter(File.Open(fileName, FileMode.Create)))
             {
@@ -15,7 +16,7 @@
                 }
             }
 
-            List<string> identifyerStartDeterm = new List<string>
+            List<string> identifyerStartDef = new List<string>
             {
                 "int",
                 "long",
@@ -29,35 +30,28 @@
                 "void"
             };
 
-            List<string> identifyerEndDeterm = new List<string>
-            {
-                "=",
-                ";",
-                "(",
-            };
+            List<string> identifyerEndDef = new List<string> { "=", ";", "(", };
+            List<string> typesStartDef = new List<string> { "class", "struct", "enum", };
 
-            List<string> typesStartDeterm = new List<string>
+            var CustomTypes = GetSqueezedStr(input, typesStartDef, new List<string>());
+            foreach (var elem in CustomTypes)
             {
-                "class",
-                "struct",
-                "enum",
-            };
+                identifyerStartDef.Add( elem.Value);
+            }
 
-            List<KeyValuePair<int, string>> allIdenifyers = GetSqueezedStr(input, identifyerStartDeterm, identifyerEndDeterm);
-            Console.WriteLine();
+            List<KeyValuePair<int, string>> allIdenifyers = GetSqueezedStr(input, identifyerStartDef, identifyerEndDef);
             foreach (var item in allIdenifyers)
             {
                 Console.WriteLine($"Row Number: {item.Key}\tIdentifyer: {item.Value}");
             }
 
-            List<KeyValuePair<int, string>> allTypes = GetSqueezedStr(input, typesStartDeterm, new List<string>());
-            foreach (var item in allTypes)
+            foreach (var item in CustomTypes)
             {
                 Console.WriteLine($"Row Number: {item.Key}\tType: {item.Value}");
             }
         }
 
-        private static List<KeyValuePair<int, string>> GetSqueezedStr(List<string> input, List<string> identifyerStartDeterm, List<string> identifyerEndDeterm)
+        private static List<KeyValuePair<int, string>> GetSqueezedStr(List<string> input, List<string> StartDef, List<string> EndDef)
         {
             List<KeyValuePair<int, string>> identifyerList = new List<KeyValuePair<int, string>>();
             for (int i = 0; i < input.Count; i++)
@@ -65,12 +59,12 @@
                 if (input[i].Length > 0)
                 {
                     bool LineContainsIdentifyer = false;
-                    for (int j = 0; j < identifyerStartDeterm.Count; j++)
+                    for (int j = 0; j < StartDef.Count; j++)
                     {
                         int index;
-                        while ((index = input[i].IndexOf(identifyerStartDeterm[j])) != -1)
+                        while ((index = input[i].IndexOf(StartDef[j])) != -1)
                         {
-                            input[i] = input[i].Substring(index+identifyerStartDeterm[j].Length);
+                            input[i] = input[i].Substring(index + StartDef[j].Length);
                             LineContainsIdentifyer = true;
                         }
                     }
@@ -82,9 +76,9 @@
                         for (int j = 0; j < sameLineIdentifyerList.Count; j++)
                         {
                             int topTrim = sameLineIdentifyerList[j].Length;
-                            for (int k = 0; k < identifyerEndDeterm.Count; k++)
+                            for (int k = 0; k < EndDef.Count; k++)
                             {
-                                int index = sameLineIdentifyerList[j].IndexOf(identifyerEndDeterm[k]);
+                                int index = sameLineIdentifyerList[j].IndexOf(EndDef[k]);
                                 topTrim = (topTrim > index && index != -1) ? index : topTrim;
                             }
                             sameLineIdentifyerList[j] = sameLineIdentifyerList[j].Remove(topTrim).Trim();

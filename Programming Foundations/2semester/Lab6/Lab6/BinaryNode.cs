@@ -1,0 +1,121 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Lab6
+{
+    internal class BinaryNode
+    {
+        #region Fields
+        public BinaryNode LeftChild { get; set; }
+        public BinaryNode RightChild { get; set; }
+
+        public int Key { get; set; }
+        public List<string> Value { get; set; }
+        #endregion
+
+        #region Constructors
+        public BinaryNode(int key, List<string> value)
+        {
+            LeftChild = null;
+            RightChild = null;
+
+            Key = key;
+            Value = value;
+        }
+        #endregion
+
+        #region Methods
+        public void AddNode(BinaryNode binaryNode)
+        {
+            BinaryNode editable = null;
+            if (binaryNode.Key == Key) throw new ArgumentException("Can`t add node with same Key");
+            else if (binaryNode.Key > Key)
+            {
+                editable = RightChild;
+            }
+            else if (binaryNode.Key < Key)
+            {
+                editable = LeftChild;
+            }
+            if (editable != null)
+                editable.AddNode(binaryNode);
+            else
+                editable = binaryNode;
+        }
+
+        public BinaryNode? GetNode(int key)
+        {
+            if (key == Key)
+                return this;
+            else if (key < Key && LeftChild != null)
+                return LeftChild.GetNode(key);
+            else if (key > Key && RightChild != null)
+                return RightChild.GetNode(key);
+            else
+                return null;
+        }
+
+        public void RemoveNode(int key)
+        {
+            if(key ==Key)
+            {
+                BinaryNode replacementNode;
+                if (LeftChild != null)
+                {
+                    replacementNode = GoToSubtree(LeftChild, 1).GoToSubtree(RightChild);
+                    Key = replacementNode.Key;
+                    Value = replacementNode.Value;
+                    replacementNode = null;
+                }
+                else if (RightChild != null)
+                {
+                    replacementNode = GoToSubtree(RightChild, 1).GoToSubtree(LeftChild);
+                    Key = replacementNode.Key;
+                    Value = replacementNode.Value;
+                    replacementNode = null;
+                }
+                else
+                {
+                    BinaryNode thisNode =GetNode(key);
+                    thisNode = null;
+                }
+
+            }
+            else
+            {
+                if (key < Key && LeftChild != null) LeftChild.RemoveNode(key);
+                else if (key > Key && RightChild != null) RightChild.RemoveNode(key);
+                else throw new ArgumentException("Can`t remove the node--wasn`t found");
+            }
+        }
+
+        public BinaryNode GoToSubtree(BinaryNode subtree, int steps = -1)
+        {
+            BinaryNode nextNode;
+            if (subtree == RightChild || subtree == LeftChild)
+                nextNode = subtree;
+            else
+                throw new ArgumentException("wrong parameter passed as a type of subtree");
+
+
+            if (steps == 0)
+                return this;
+            else if (steps == -1)
+            {
+                if (nextNode != null)
+                    return nextNode.GoToSubtree(subtree, steps);
+                else
+                    return this;
+            }
+            else if (steps > 0 && nextNode!=null)
+                return nextNode.GoToSubtree(subtree, steps - 1);
+            else
+                throw new ArgumentException("incrorrect steps parameter");
+                
+        }
+        #endregion
+    }
+}
