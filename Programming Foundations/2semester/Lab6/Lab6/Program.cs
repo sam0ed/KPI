@@ -17,9 +17,17 @@
                     writer.WriteLine(line);
                 }
             }
+            //input.Clear();
+            //using (StreamReader reader = new StreamReader(File.Open(fileName, FileMode.Open)))
+            //{
+            //    while(!reader.EndOfStream)
+            //    {
+            //        input.Add(reader.ReadLine());
+            //    }
+            //}
 
-            //creating the list of types(the word that goes before identifyer in it`s definition is type)
-            List<string> identifyerStartDef = new List<string>
+                //creating the list of types(the word that goes before identifyer in it`s definition is type)
+                List<string> identifyerStartDef = new List<string>
             {
                 "int ",
                 "long ",
