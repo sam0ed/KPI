@@ -4,10 +4,12 @@
     {
         static void Main(string[] args)
         {
+            //reading input
             string fileName = "SomeProgram";
             Console.WriteLine("Enter the code of program in C/C++ (do not create identifiers with the same name but different nested level) :");
             List<string> input = new List<string>(ReadMultilineInp());
             Console.WriteLine();
+            //writing input to file
             using (StreamWriter writer = new StreamWriter(File.Open(fileName, FileMode.Create)))
             {
                 foreach (string line in input)
@@ -16,6 +18,7 @@
                 }
             }
 
+            //creating the list of types(the word that goes before identifyer in it`s definition is type)
             List<string> identifyerStartDef = new List<string>
             {
                 "int ",
@@ -28,19 +31,20 @@
                 "auto ",
                 "void "
             };
+            //creating the list of strings that go after identidyer in it`s definition
             List<string> identifyerEndDef = new List<string> { "=", ";", "(", };
 
+            //spotting custom types in the input
             List<string> typesStartDef = new List<string> { "class", "struct", "enum", };
             List<string> CustomTypes = GetSqueezedStr(input, typesStartDef, new List<string>());
             foreach (var item in CustomTypes)
             {
                 Console.WriteLine($"Type: {item}");
             }
-
-            //adding custom types to types
+            //adding custom types to all other types
             identifyerStartDef.AddRange(CustomTypes);
 
-            //adding pointers to types
+            //adding pointers to all other types
             int ptrDimensAbleToRead = 5;
             int identifyerStartDefLength = identifyerStartDef.Count;
             for (int i = 0; i < identifyerStartDefLength; i++)
@@ -59,43 +63,8 @@
                 Console.WriteLine($"Identifyer: {item}");
             }
 
-
-            //Dictionary<int, List<string>> treeSource = GetLineIdntifyerPairs(input, allIdentifyers);
-            //foreach (var item in treeSource)
-            //{
-            //    Console.Write($"String number: {item.Key}\tIdentifyers: ");
-            //    foreach (var str in item.Value)
-            //    {
-            //        Console.Write(str + " ");
-            //    }
-            //    Console.WriteLine();
-            //}
-
-            //BinaryNode root = BuildTree(treeSource);
-
-            //for (int i = 0; i < treeSource.Count; i++)
-            //{
-            //    Console.Write($"String number: {root.Key}\tIdentifyers: ");
-            //    foreach (var str in root.Value)
-            //    {
-            //        Console.Write(str + " ");
-            //    }
-            //    Console.WriteLine();
-            //    root.RemoveNode(root.Key);
-            //}
-
-            /////////////////////////////////////////////////////////////////////
+            //generating Binary tree drom given identifyers and printing it
             BinaryNode root = GetLineIdentifyerTree(input, allIdentifyers);
-            //while (root.RightChild != null || root.LeftChild != null)
-            //{
-            //    Console.Write($"String number: {root.Key}\tIdentifyers: ");
-            //    foreach (var str in root.Value)
-            //    {
-            //        Console.Write(str + " ");
-            //    }
-            //    Console.WriteLine();
-            //    root.RemoveNode((int)root.Key);
-            //}
             List<BinaryNode> ascendingNodes = new List<BinaryNode>();
             GetTreeNodesAscending(root, ascendingNodes);
             for (int i = 0; i < ascendingNodes.Count; i++)
@@ -107,12 +76,6 @@
                 }
                 Console.WriteLine();
             }
-            /////////////////////////////////////////////////////////////////////
-
-
-
-
-            //PrintTree(root);
 
         }
 
@@ -133,16 +96,16 @@
         private static BinaryNode GetLineIdentifyerTree(List<string> input, List<string> allIdentifyers)
         {
             BinaryNode root = new BinaryNode();
-            allIdentifyers = new List<string>(allIdentifyers.OrderByDescending(p => p.Length).Select(p => p.Trim()));
-            for (int i = 0; i < input.Count; i++)
+            allIdentifyers = new List<string>(allIdentifyers.OrderByDescending(p => p.Length).Select(p => p.Trim())); //sorting and trimming strings of identifyers
+            for (int i = 0; i < input.Count; i++)// for every string in input
             {
                 input[i] = input[i].Trim();
 
-                for (int j = 0; j < allIdentifyers.Count(); j++)
+                for (int j = 0; j < allIdentifyers.Count(); j++)//we look for the first substring in the string which corresponds to any identifyer from allIdentifyers list
                 {
                     int index;
                     string temp = input[i];
-                    while ((index = temp.IndexOf(allIdentifyers[j].Trim())) != -1)
+                    while ((index = temp.IndexOf(allIdentifyers[j].Trim())) != -1) //if we have found such substring we check charecters on the left and on the right from it
                     {
                         bool prevCharIsLetter = false;
                         bool nextCharIsLetter = false;
@@ -162,107 +125,33 @@
                                 nextCharIsLetter = true;
                         }
 
-                        if ((!prevCharIsLetter || prevChar == null) && (!nextCharIsLetter || nextChar == null))
+                        if ((!prevCharIsLetter || prevChar == null) && (!nextCharIsLetter || nextChar == null)) //if these charecters are not letters or dont exist(beginng or end of string)
                         {
                             if (root.GetNode(i + 1) != null)
                             {
-                                if (!root.GetNode(i + 1).Value.Contains(allIdentifyers[j]))
+                                if (!root.GetNode(i + 1).Value.Contains(allIdentifyers[j]))//add new element to the tree if string wasn`t added before
                                     root.GetNode(i + 1).Value.Add(allIdentifyers[j]);
                             }
                             else
                             {
-                                root.AddNode(new BinaryNode(i + 1, new List<string> { allIdentifyers[j] }));
+                                root.AddNode(new BinaryNode(i + 1, new List<string> { allIdentifyers[j] }));//add new element to the list of identifyers found in the string
                             }
                             input[i] = input[i].Remove(index, allIdentifyers[j].Length);
                             temp = input[i];
                         }
                         else
                         {
-                            temp = temp.Substring(index + allIdentifyers[j].Length);
+                            temp = temp.Substring(index + allIdentifyers[j].Length);//trimming the current string till the end of found substring 
                         }
 
-                    }
+                    }//repeating for other identifyers
                 }
             }
             return root;
         }
 
-        //private static BinaryNode BuildTree(Dictionary<int, List<string>> treeSource)
-        //{
-        //    var treeKeys = treeSource.Keys;
-        //    int rootKey = treeKeys.ElementAt(treeKeys.Count/2);
-        //    BinaryNode root = new BinaryNode(rootKey, treeSource[rootKey]);
-        //    for (int i = 0; i < treeKeys.Count; i++)
-        //    {
-        //        int currentKey = treeKeys.ElementAt(i);
-        //        if (currentKey!=rootKey)
-        //        {
-
-        //            root.AddNode(new BinaryNode(currentKey, treeSource[currentKey]));
-        //        }
-        //    }
-        //    return root;
-        //}
-
-        //private static Dictionary<int, List<string>> GetLineIdntifyerPairs(List<string> input, List<string> allIdentifyers)
-        //{
-        //    Dictionary<int, List<string>> result = new Dictionary<int, List<string>>();
-        //    allIdentifyers = new List<string>(allIdentifyers.OrderByDescending(p => p.Length).Select(p=>p.Trim()));
-        //    for (int i = 0; i < input.Count; i++)
-        //    {
-        //        input[i] = input[i].Trim();
-
-        //        for (int j = 0; j < allIdentifyers.Count(); j++)
-        //        {
-        //            int index;
-        //            string temp = input[i];
-        //            while ((index = temp.IndexOf(allIdentifyers[j].Trim())) != -1)
-        //            {
-        //                bool prevCharIsLetter = false;
-        //                bool nextCharIsLetter = false;
-
-        //                char? prevChar = null;
-        //                char? nextChar = null;
-        //                if (index - 1 >= 0)
-        //                {
-        //                    prevChar = temp[index - 1];
-        //                    if ((65 <= prevChar && prevChar <= 90) || (97 <= prevChar && prevChar <= 122))
-        //                        prevCharIsLetter = true;
-        //                }
-        //                if (index + allIdentifyers[j].Length < temp.Length)
-        //                {
-        //                    nextChar = temp[index + allIdentifyers[j].Length];
-        //                    if ((65 <= nextChar && nextChar <= 90) || (97 <= nextChar && nextChar <= 122))
-        //                        nextCharIsLetter = true;
-        //                }
-
-        //                if ((!prevCharIsLetter || prevChar == null) && (!nextCharIsLetter || nextChar == null))
-        //                {
-        //                    if (result.ContainsKey(i+1))
-        //                    {
-        //                        if (!result[i+1].Contains(allIdentifyers[j]))
-        //                            result[i+1].Add(allIdentifyers[j]);
-        //                    }
-        //                    else
-        //                    {
-        //                        result.Add(i+1, new List<string> { allIdentifyers[j] });
-        //                    }
-        //                    input[i]=input[i].Remove(index, allIdentifyers[j].Length);
-        //                    temp = input[i];
-        //                }
-        //                else
-        //                {
-        //                    temp = temp.Substring(index+ allIdentifyers[j].Length);
-        //                }
-
-        //            }
-        //        }
-        //    }
-        //    return result;
-        //}
-
-
-        private static List<string> GetSqueezedStr(List<string> input, List<string> StartDef, List<string> EndDef)
+        //if specifyed arrays of elements which can precede and elements which can go after the wanted squeezed string it returns an array of substrings from which satisfy condition
+        private static List<string> GetSqueezedStr(List<string> input, List<string> StartDef, List<string> EndDef) 
         {
             List<string> identifyerList = new List<string>();
             for (int i = 0; i < input.Count; i++)
@@ -339,7 +228,7 @@
                     case ConsoleKey.E when key.Modifiers == ConsoleModifiers.Control:
                         Console.Write(' ');
                         Console.CursorLeft--;
-                        Console.CursorLeft--;
+                        //Console.CursorLeft--;
                         contInp = false;
                         break;
                     case ConsoleKey.Backspace:
@@ -366,3 +255,17 @@
         }
     }
 }
+
+////Code for testing
+//
+//Testing deleting of BinaryNodes
+//while (root.RightChild != null || root.LeftChild != null)
+//{
+//    Console.Write($"String number: {root.Key}\tIdentifyers: ");
+//    foreach (var str in root.Value)
+//    {
+//        Console.Write(str + " ");
+//    }
+//    Console.WriteLine();
+//    root.RemoveNode((int)root.Key);
+//}

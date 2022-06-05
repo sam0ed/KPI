@@ -142,37 +142,6 @@ namespace Lab6
 
         }
 
-
-        //public int GetTreeWidth()
-        //{
-        //    int width = 1;
-        //    BinaryNode node = this;
-        //    while (true)
-        //    {
-        //        try
-        //        {
-        //            node = node.GoToSubtree(RightChild, 1);
-        //            width++;
-        //        }
-        //        catch (ArgumentException ex)
-        //        {
-        //            break;
-        //        }
-        //    }
-        //    while (true)
-        //    {
-        //        try
-        //        {
-        //            node = node.GoToSubtree(LeftChild, 1);
-        //            width++;
-        //        }
-        //        catch (ArgumentException ex)
-        //        {
-        //            break;
-        //        }
-        //    }
-        //    return width;
-        //}
         #endregion
     }
 }
