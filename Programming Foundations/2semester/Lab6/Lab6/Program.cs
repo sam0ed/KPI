@@ -86,15 +86,26 @@
 
             /////////////////////////////////////////////////////////////////////
             BinaryNode root = GetLineIdentifyerTree(input, allIdentifyers);
-            while (root.RightChild != null || root.LeftChild != null)
+            //while (root.RightChild != null || root.LeftChild != null)
+            //{
+            //    Console.Write($"String number: {root.Key}\tIdentifyers: ");
+            //    foreach (var str in root.Value)
+            //    {
+            //        Console.Write(str + " ");
+            //    }
+            //    Console.WriteLine();
+            //    root.RemoveNode((int)root.Key);
+            //}
+            List<BinaryNode> ascendingNodes = new List<BinaryNode>();
+            GetTreeNodesAscending(root, ascendingNodes);
+            for (int i = 0; i < ascendingNodes.Count; i++)
             {
-                Console.Write($"String number: {root.Key}\tIdentifyers: ");
-                foreach (var str in root.Value)
+                Console.Write($"String number: {ascendingNodes[i].Key}\tIdentifyers: ");
+                foreach (var str in ascendingNodes[i].Value)
                 {
                     Console.Write(str + " ");
                 }
                 Console.WriteLine();
-                root.RemoveNode((int)root.Key);
             }
             /////////////////////////////////////////////////////////////////////
 
@@ -105,13 +116,17 @@
 
         }
 
-        public void GetTreeKeysAscending(BinaryNode root)
+        public static void GetTreeNodesAscending(BinaryNode root, List<BinaryNode> ascendingNodes)
         {
             if (root.LeftChild != null)
             {
-                GetTreeKeysAscending(root.LeftChild);
+                GetTreeNodesAscending(root.LeftChild, ascendingNodes);
             }
-
+            ascendingNodes.Add(root);
+            if(root.RightChild != null)
+            {
+                GetTreeNodesAscending(root.RightChild, ascendingNodes);
+            }
 
         }
 
