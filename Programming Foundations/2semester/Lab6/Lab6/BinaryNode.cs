@@ -12,12 +12,12 @@ namespace Lab6
         public BinaryNode LeftChild { get; set; }
         public BinaryNode RightChild { get; set; }
 
-        public int Key { get; set; }
+        public int? Key { get; set; }
         public List<string> Value { get; set; }
         #endregion
 
         #region Constructors
-        public BinaryNode(int key, List<string> value)
+        public BinaryNode(int? key=null, List<string> value=null)
         {
             LeftChild = null;
             RightChild = null;
@@ -25,28 +25,56 @@ namespace Lab6
             Key = key;
             Value = value;
         }
+
         #endregion
 
         #region Methods
-        public void AddNode(BinaryNode binaryNode)
+        public void AddNode(BinaryNode binaryNode)//tested working
         {
-            BinaryNode editable = null;
-            if (binaryNode.Key == Key) throw new ArgumentException("Can`t add node with same Key");
-            else if (binaryNode.Key > Key)
+            string editable;
+            if (Key != null)
             {
-                editable = RightChild;
+                if (binaryNode.Key == Key) throw new ArgumentException("Can`t add node with same Key");
+                else if (binaryNode.Key > Key)
+                {
+                    editable = "RightChild";
+                }
+                else
+                {
+                    editable = "LeftChild";
+                }
+
+                if (editable == "RightChild")
+                {
+                    if (RightChild != null)
+                        RightChild.AddNode(binaryNode);
+                    else
+                        RightChild = binaryNode;
+                }
+                else if (editable == "LeftChild")
+                {
+                    if (LeftChild != null)
+                        LeftChild.AddNode(binaryNode);
+                    else
+                        LeftChild = binaryNode;
+                }
             }
-            else if (binaryNode.Key < Key)
-            {
-                editable = LeftChild;
-            }
-            if (editable != null)
-                editable.AddNode(binaryNode);
             else
-                editable = binaryNode;
+            {
+                this.ChangeNodeTo(binaryNode);
+            }
+
+
         }
 
-        public BinaryNode? GetNode(int key)
+        public void ChangeNodeTo(BinaryNode binaryNode)
+        {
+            Key = binaryNode.Key;
+            Value = binaryNode.Value;
+            LeftChild = binaryNode.LeftChild;
+            RightChild = binaryNode.RightChild;
+        }
+        public BinaryNode? GetNode(int key)//tested-working
         {
             if (key == Key)
                 return this;
@@ -60,27 +88,24 @@ namespace Lab6
 
         public void RemoveNode(int key)
         {
-            if(key ==Key)
+            if (key == Key)
             {
                 BinaryNode replacementNode;
                 if (LeftChild != null)
                 {
-                    replacementNode = GoToSubtree(LeftChild, 1).GoToSubtree(RightChild);
-                    Key = replacementNode.Key;
-                    Value = replacementNode.Value;
-                    replacementNode = null;
+                    replacementNode = LeftChild.GoToSubtree(LeftChild.RightChild);
+                    this.ChangeNodeTo(replacementNode);
+                    replacementNode.ChangeNodeTo(new BinaryNode());
                 }
                 else if (RightChild != null)
                 {
-                    replacementNode = GoToSubtree(RightChild, 1).GoToSubtree(LeftChild);
-                    Key = replacementNode.Key;
-                    Value = replacementNode.Value;
-                    replacementNode = null;
+                    replacementNode = RightChild.GoToSubtree(RightChild.LeftChild);
+                    this.ChangeNodeTo(replacementNode);
+                    replacementNode.ChangeNodeTo(new BinaryNode());
                 }
                 else
                 {
-                    BinaryNode thisNode =GetNode(key);
-                    thisNode = null;
+                    this.ChangeNodeTo(new BinaryNode());
                 }
 
             }
@@ -92,7 +117,7 @@ namespace Lab6
             }
         }
 
-        public BinaryNode GoToSubtree(BinaryNode subtree, int steps = -1)
+        public BinaryNode GoToSubtree(BinaryNode subtree, int steps = -1)//tested working
         {
             BinaryNode nextNode;
             if (subtree == RightChild || subtree == LeftChild)
@@ -110,12 +135,44 @@ namespace Lab6
                 else
                     return this;
             }
-            else if (steps > 0 && nextNode!=null)
+            else if (steps > 0 && nextNode != null)
                 return nextNode.GoToSubtree(subtree, steps - 1);
             else
                 throw new ArgumentException("incrorrect steps parameter");
-                
+
         }
+
+
+        //public int GetTreeWidth()
+        //{
+        //    int width = 1;
+        //    BinaryNode node = this;
+        //    while (true)
+        //    {
+        //        try
+        //        {
+        //            node = node.GoToSubtree(RightChild, 1);
+        //            width++;
+        //        }
+        //        catch (ArgumentException ex)
+        //        {
+        //            break;
+        //        }
+        //    }
+        //    while (true)
+        //    {
+        //        try
+        //        {
+        //            node = node.GoToSubtree(LeftChild, 1);
+        //            width++;
+        //        }
+        //        catch (ArgumentException ex)
+        //        {
+        //            break;
+        //        }
+        //    }
+        //    return width;
+        //}
         #endregion
     }
 }

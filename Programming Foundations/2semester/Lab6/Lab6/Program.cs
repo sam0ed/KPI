@@ -6,8 +6,8 @@
         {
             string fileName = "SomeProgram";
             Console.WriteLine("Enter the code of program in C/C++ (do not create identifiers with the same name but different nested level) :");
-            Console.WriteLine();
             List<string> input = new List<string>(ReadMultilineInp());
+            Console.WriteLine();
             using (StreamWriter writer = new StreamWriter(File.Open(fileName, FileMode.Create)))
             {
                 foreach (string line in input)
@@ -18,42 +18,238 @@
 
             List<string> identifyerStartDef = new List<string>
             {
-                "int",
-                "long",
-                //"long long",
-                "double",
-                "float",
-                "bool",
-                "char",
-                "string",
-                "auto",
-                "void"
+                "int ",
+                "long ",
+                "double ",
+                "float ",
+                "bool ",
+                "char ",
+                "string ",
+                "auto ",
+                "void "
             };
-
             List<string> identifyerEndDef = new List<string> { "=", ";", "(", };
+
             List<string> typesStartDef = new List<string> { "class", "struct", "enum", };
-
-            var CustomTypes = GetSqueezedStr(input, typesStartDef, new List<string>());
-            foreach (var elem in CustomTypes)
-            {
-                identifyerStartDef.Add( elem.Value);
-            }
-
-            List<KeyValuePair<int, string>> allIdenifyers = GetSqueezedStr(input, identifyerStartDef, identifyerEndDef);
-            foreach (var item in allIdenifyers)
-            {
-                Console.WriteLine($"Row Number: {item.Key}\tIdentifyer: {item.Value}");
-            }
-
+            List<string> CustomTypes = GetSqueezedStr(input, typesStartDef, new List<string>());
             foreach (var item in CustomTypes)
             {
-                Console.WriteLine($"Row Number: {item.Key}\tType: {item.Value}");
+                Console.WriteLine($"Type: {item}");
             }
+
+            //adding custom types to types
+            identifyerStartDef.AddRange(CustomTypes);
+
+            //adding pointers to types
+            int ptrDimensAbleToRead = 5;
+            int identifyerStartDefLength = identifyerStartDef.Count;
+            for (int i = 0; i < identifyerStartDefLength; i++)
+            {
+                for (int j = 0; j < ptrDimensAbleToRead; j++)
+                {
+
+                    identifyerStartDef.Add(identifyerStartDef[i] + new String('*', j) + " ");
+                }
+            }
+
+            //getting all identifyers in program
+            List<string> allIdentifyers = GetSqueezedStr(new List<string>(input), identifyerStartDef, identifyerEndDef);
+            foreach (var item in allIdentifyers)
+            {
+                Console.WriteLine($"Identifyer: {item}");
+            }
+
+
+            //Dictionary<int, List<string>> treeSource = GetLineIdntifyerPairs(input, allIdentifyers);
+            //foreach (var item in treeSource)
+            //{
+            //    Console.Write($"String number: {item.Key}\tIdentifyers: ");
+            //    foreach (var str in item.Value)
+            //    {
+            //        Console.Write(str + " ");
+            //    }
+            //    Console.WriteLine();
+            //}
+
+            //BinaryNode root = BuildTree(treeSource);
+
+            //for (int i = 0; i < treeSource.Count; i++)
+            //{
+            //    Console.Write($"String number: {root.Key}\tIdentifyers: ");
+            //    foreach (var str in root.Value)
+            //    {
+            //        Console.Write(str + " ");
+            //    }
+            //    Console.WriteLine();
+            //    root.RemoveNode(root.Key);
+            //}
+
+            /////////////////////////////////////////////////////////////////////
+            BinaryNode root = GetLineIdentifyerTree(input, allIdentifyers);
+            while (root.RightChild != null || root.LeftChild != null)
+            {
+                Console.Write($"String number: {root.Key}\tIdentifyers: ");
+                foreach (var str in root.Value)
+                {
+                    Console.Write(str + " ");
+                }
+                Console.WriteLine();
+                root.RemoveNode((int)root.Key);
+            }
+            /////////////////////////////////////////////////////////////////////
+
+
+
+
+            //PrintTree(root);
+
         }
 
-        private static List<KeyValuePair<int, string>> GetSqueezedStr(List<string> input, List<string> StartDef, List<string> EndDef)
+        public void GetTreeKeysAscending(BinaryNode root)
         {
-            List<KeyValuePair<int, string>> identifyerList = new List<KeyValuePair<int, string>>();
+            if (root.LeftChild != null)
+            {
+                GetTreeKeysAscending(root.LeftChild);
+            }
+
+
+        }
+
+        private static BinaryNode GetLineIdentifyerTree(List<string> input, List<string> allIdentifyers)
+        {
+            BinaryNode root = new BinaryNode();
+            allIdentifyers = new List<string>(allIdentifyers.OrderByDescending(p => p.Length).Select(p => p.Trim()));
+            for (int i = 0; i < input.Count; i++)
+            {
+                input[i] = input[i].Trim();
+
+                for (int j = 0; j < allIdentifyers.Count(); j++)
+                {
+                    int index;
+                    string temp = input[i];
+                    while ((index = temp.IndexOf(allIdentifyers[j].Trim())) != -1)
+                    {
+                        bool prevCharIsLetter = false;
+                        bool nextCharIsLetter = false;
+
+                        char? prevChar = null;
+                        char? nextChar = null;
+                        if (index - 1 >= 0)
+                        {
+                            prevChar = temp[index - 1];
+                            if ((65 <= prevChar && prevChar <= 90) || (97 <= prevChar && prevChar <= 122))
+                                prevCharIsLetter = true;
+                        }
+                        if (index + allIdentifyers[j].Length < temp.Length)
+                        {
+                            nextChar = temp[index + allIdentifyers[j].Length];
+                            if ((65 <= nextChar && nextChar <= 90) || (97 <= nextChar && nextChar <= 122))
+                                nextCharIsLetter = true;
+                        }
+
+                        if ((!prevCharIsLetter || prevChar == null) && (!nextCharIsLetter || nextChar == null))
+                        {
+                            if (root.GetNode(i + 1) != null)
+                            {
+                                if (!root.GetNode(i + 1).Value.Contains(allIdentifyers[j]))
+                                    root.GetNode(i + 1).Value.Add(allIdentifyers[j]);
+                            }
+                            else
+                            {
+                                root.AddNode(new BinaryNode(i + 1, new List<string> { allIdentifyers[j] }));
+                            }
+                            input[i] = input[i].Remove(index, allIdentifyers[j].Length);
+                            temp = input[i];
+                        }
+                        else
+                        {
+                            temp = temp.Substring(index + allIdentifyers[j].Length);
+                        }
+
+                    }
+                }
+            }
+            return root;
+        }
+
+        //private static BinaryNode BuildTree(Dictionary<int, List<string>> treeSource)
+        //{
+        //    var treeKeys = treeSource.Keys;
+        //    int rootKey = treeKeys.ElementAt(treeKeys.Count/2);
+        //    BinaryNode root = new BinaryNode(rootKey, treeSource[rootKey]);
+        //    for (int i = 0; i < treeKeys.Count; i++)
+        //    {
+        //        int currentKey = treeKeys.ElementAt(i);
+        //        if (currentKey!=rootKey)
+        //        {
+
+        //            root.AddNode(new BinaryNode(currentKey, treeSource[currentKey]));
+        //        }
+        //    }
+        //    return root;
+        //}
+
+        //private static Dictionary<int, List<string>> GetLineIdntifyerPairs(List<string> input, List<string> allIdentifyers)
+        //{
+        //    Dictionary<int, List<string>> result = new Dictionary<int, List<string>>();
+        //    allIdentifyers = new List<string>(allIdentifyers.OrderByDescending(p => p.Length).Select(p=>p.Trim()));
+        //    for (int i = 0; i < input.Count; i++)
+        //    {
+        //        input[i] = input[i].Trim();
+
+        //        for (int j = 0; j < allIdentifyers.Count(); j++)
+        //        {
+        //            int index;
+        //            string temp = input[i];
+        //            while ((index = temp.IndexOf(allIdentifyers[j].Trim())) != -1)
+        //            {
+        //                bool prevCharIsLetter = false;
+        //                bool nextCharIsLetter = false;
+
+        //                char? prevChar = null;
+        //                char? nextChar = null;
+        //                if (index - 1 >= 0)
+        //                {
+        //                    prevChar = temp[index - 1];
+        //                    if ((65 <= prevChar && prevChar <= 90) || (97 <= prevChar && prevChar <= 122))
+        //                        prevCharIsLetter = true;
+        //                }
+        //                if (index + allIdentifyers[j].Length < temp.Length)
+        //                {
+        //                    nextChar = temp[index + allIdentifyers[j].Length];
+        //                    if ((65 <= nextChar && nextChar <= 90) || (97 <= nextChar && nextChar <= 122))
+        //                        nextCharIsLetter = true;
+        //                }
+
+        //                if ((!prevCharIsLetter || prevChar == null) && (!nextCharIsLetter || nextChar == null))
+        //                {
+        //                    if (result.ContainsKey(i+1))
+        //                    {
+        //                        if (!result[i+1].Contains(allIdentifyers[j]))
+        //                            result[i+1].Add(allIdentifyers[j]);
+        //                    }
+        //                    else
+        //                    {
+        //                        result.Add(i+1, new List<string> { allIdentifyers[j] });
+        //                    }
+        //                    input[i]=input[i].Remove(index, allIdentifyers[j].Length);
+        //                    temp = input[i];
+        //                }
+        //                else
+        //                {
+        //                    temp = temp.Substring(index+ allIdentifyers[j].Length);
+        //                }
+
+        //            }
+        //        }
+        //    }
+        //    return result;
+        //}
+
+
+        private static List<string> GetSqueezedStr(List<string> input, List<string> StartDef, List<string> EndDef)
+        {
+            List<string> identifyerList = new List<string>();
             for (int i = 0; i < input.Count; i++)
             {
                 if (input[i].Length > 0)
@@ -62,9 +258,12 @@
                     for (int j = 0; j < StartDef.Count; j++)
                     {
                         int index;
+                        string newTrimmedStr;
                         while ((index = input[i].IndexOf(StartDef[j])) != -1)
                         {
-                            input[i] = input[i].Substring(index + StartDef[j].Length);
+                            newTrimmedStr = input[i].Substring(index + StartDef[j].Length).Trim();
+                            input[i] = newTrimmedStr;
+
                             LineContainsIdentifyer = true;
                         }
                     }
@@ -86,12 +285,12 @@
                             bool foundSameIdenifyer = false;
                             for (int k = 0; k < identifyerList.Count; k++)
                             {
-                                if (identifyerList[k].Value == sameLineIdentifyerList[j])
+                                if (identifyerList[k] == sameLineIdentifyerList[j])
                                     foundSameIdenifyer = true;
                             }
-                            if (!foundSameIdenifyer)
+                            if (!foundSameIdenifyer && sameLineIdentifyerList[j] != "")
                             {
-                                identifyerList.Add(new KeyValuePair<int, string>(i, sameLineIdentifyerList[j]));
+                                identifyerList.Add(sameLineIdentifyerList[j] + " ");
                             }
                         }
                     }
@@ -99,94 +298,6 @@
             }
             return identifyerList;
         }
-        //private static void GetIdenifyers(List<string> input, List<string> identifyerStartDeterm, List<string> identifyerEndDeterm)
-        //{
-        //    List<KeyValuePair<int, string>> identifyerList = new List<KeyValuePair<int, string>>();
-        //    for (int i = 0; i < input.Count; i++)
-        //    {
-        //        if (input[i].Length > 0)
-        //        {
-        //            TrimIdentidyerName(input[i], identifyerStartDeterm, identifyerEndDeterm);
-        //            //int firstStartDetermIndex = input[i].Length;
-        //            //string firstStartDeterm = null;
-        //            //for (int j = 0; j < identifyerStartDeterm.Count; j++)
-        //            //{
-        //            //    string arrayVersion = identifyerStartDeterm[j] + "[]";
-        //            //    if (input[i].Contains(identifyerStartDeterm[j]) && input[i].IndexOf(identifyerStartDeterm[j]) < firstStartDetermIndex)
-        //            //    {
-        //            //        firstStartDetermIndex = input[i].IndexOf(identifyerStartDeterm[j]);
-        //            //        firstStartDeterm = identifyerStartDeterm[j];
-        //            //    }
-        //            //    if (input[i].Contains(arrayVersion) && input[i].IndexOf(arrayVersion) > firstStartDetermIndex)
-        //            //    {
-        //            //        firstStartDetermIndex = input[i].IndexOf(arrayVersion);
-        //            //        firstStartDeterm = arrayVersion;
-        //            //    }
-        //            //}
-        //            //if (firstStartDetermIndex != input[i].Length)
-        //            //{
-
-        //            //    if (firstStartDeterm.Length != input[i].Length)
-        //            //    {
-        //            //        int containsEndDeterm;
-        //            //        string temp = input[i][(firstStartDetermIndex + firstStartDeterm.Length)..];
-        //            //        for (int j = 0; j < identifyerEndDeterm.Count; j++)
-        //            //        {
-        //            //            if (temp.Contains(identifyerEndDeterm[j]))
-
-        //            //        }
-        //            //    }
-
-        //            //}
-
-        //        }
-        //    }
-        //}
-
-        //private static string TrimIdentidyerName(string line, List<string> identifyerStartDeterm, List<string> identifyerEndDeterm)
-        //{
-        //    int firstStartDetermIndex = line.Length;
-        //    string firstStartDeterm = null;
-        //    for (int j = 0; j < identifyerStartDeterm.Count; j++)
-        //    {
-        //        string arrayVersion = identifyerStartDeterm[j] + "[]";
-        //        if (line.Contains(identifyerStartDeterm[j]) && line.IndexOf(identifyerStartDeterm[j]) < firstStartDetermIndex)
-        //        {
-        //            firstStartDetermIndex = line.IndexOf(identifyerStartDeterm[j]);
-        //            firstStartDeterm = identifyerStartDeterm[j];
-        //        }
-        //        if (line.Contains(arrayVersion) && line.IndexOf(arrayVersion) > firstStartDetermIndex)
-        //        {
-        //            firstStartDetermIndex = line.IndexOf(arrayVersion);
-        //            firstStartDeterm = arrayVersion;
-        //        }
-        //    }
-        //    if (firstStartDetermIndex != line.Length)
-        //    {
-
-        //        if (firstStartDeterm.Length != line.Length)
-        //        {
-        //            bool containsEndDeterm = false;
-        //            string temp = line[(firstStartDetermIndex + firstStartDeterm.Length)..];
-        //            for (int j = 0; j < identifyerEndDeterm.Count; j++)
-        //            {
-        //                if (temp.Contains(identifyerEndDeterm[j]))
-        //                    containsEndDeterm = true;
-        //            }
-        //            if(containsEndDeterm==true)
-        //            {
-        //                //
-        //                Console.WriteLine();
-        //                Console.WriteLine(temp);
-        //                //
-        //                return TrimIdentidyerName(temp, identifyerStartDeterm, identifyerEndDeterm);
-        //            }
-
-        //        }
-
-        //    }
-        //    return line;
-        //}
 
         public static string[] ReadMultilineInp()
         {
