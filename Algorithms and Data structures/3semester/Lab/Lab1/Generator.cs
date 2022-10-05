@@ -8,47 +8,48 @@ namespace Lab1;
 
 public class Generator
 {
-    public long numberAmount;
-    public int numberSizeInBytes;
-    public int numberSizeInBits;
-
-    public string fileName = "Input";
+    public ulong numberAmount;
     private string fileType;
+
+    public const int numberSizeInBytes = sizeof(long);
+    public const int numberSizeInBits = numberSizeInBytes * 8;
+
+    public const string fileName = "Input";
 
     public Random random = new Random();
 
-    public Generator(int fileSizeInBytes, string fileType)
+    public Generator(string fileType)
     {
-        numberSizeInBytes = sizeof(long);
-        numberSizeInBits = numberSizeInBytes * 8;
-        numberAmount = (long)Math.Ceiling((double)(fileSizeInBytes / numberSizeInBytes));
+
         this.fileType = fileType;
     }
 
-    public void GenerateFile()
+    public void GenerateFile(ulong fileSizeInBytes)
     {
         if (fileType == ".bin")
-            GenerateBinaryFile();
+            GenerateBinaryFile(fileSizeInBytes);
         else if (fileType == ".txt")
-            GenerateTextFile();
+            GenerateTextFile(fileSizeInBytes);
     }
 
-    public void GenerateBinaryFile()
+    public void GenerateBinaryFile(ulong fileSizeInBytes)
     {
+        numberAmount = (ulong)Math.Ceiling((double)(fileSizeInBytes / numberSizeInBytes));
         BinaryWriter bw = new BinaryWriter(File.Open(fileName, FileMode.Create));
 
-        for (int i = 0; i < numberAmount; i++)
+        for (ulong i = 0; i < numberAmount; i++)
         {
             bw.Write(LongRandom(0, ulong.MaxValue));
         }
     }
 
-    public void GenerateTextFile()
+    public void GenerateTextFile(ulong fileSizeInBytes)
     {
+        numberAmount = (ulong)Math.Ceiling((double)(fileSizeInBytes / numberSizeInBytes));
         StreamWriter sw = new StreamWriter(File.Open(fileName, FileMode.Create));
         //optimize
 
-        for (int i = 0; i < numberAmount; i++)
+        for (ulong i = 0; i < numberAmount; i++)
         {
             sw.Write(LongRandom(0, ulong.MaxValue));//
         }
@@ -59,22 +60,18 @@ public class Generator
         byte[] buf = new byte[numberSizeInBytes];
         random.NextBytes(buf);
         ulong longRand = BitConverter.ToUInt64(buf, 0);
-        longRand >>= random.Next(0, numberSizeInBits );
+        longRand >>= random.Next(0, numberSizeInBits);
 
         return ((longRand % (max - min)) + min);
     }
+
+    //public static void ExpandFile(ulong sizeToAdd)
+    //{
+    //    if (sizeToAdd < 0) throw new ArgumentOutOfRangeException();
+
+    //    for (int i = 0; i < length; i++)
+    //    {
+
+    //    }
+    //}
 }
-
-//public class TestClass<T>
-//{
-//    public long numberAmount;
-//    public TestClass()
-//    {
-//        unsafe
-//        {
-
-//            numberAmount =  Marshal.SizeOf<T>();
-//            Console.WriteLine(numberAmount);
-//        }
-//    }
-//}
