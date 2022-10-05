@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 
 namespace Lab1;
 
-public class Generator
+public class FileManager
 {
     public ulong numberAmount;
     private string fileType;
@@ -18,7 +18,7 @@ public class Generator
 
     public Random random = new Random();
 
-    public Generator(string fileType)
+    public FileManager(string fileType)
     {
 
         this.fileType = fileType;
@@ -27,14 +27,14 @@ public class Generator
     public void GenerateFile(ulong fileSizeInBytes)
     {
         if (fileType == ".bin")
-            GenerateBinaryFile(fileSizeInBytes);
+            WriteRandomToBinaryFile(fileSizeInBytes, FileMode.Create);
         else if (fileType == ".txt")
-            GenerateTextFile(fileSizeInBytes);
+            WriteRandomToTextFile(fileSizeInBytes, FileMode.Create);
     }
 
-    public void GenerateBinaryFile(ulong fileSizeInBytes)
+    public void WriteRandomToBinaryFile(ulong inputSizeInBytes, FileMode fileMode)
     {
-        numberAmount = (ulong)Math.Ceiling((double)(fileSizeInBytes / numberSizeInBytes));
+        numberAmount = (ulong)Math.Ceiling((double)(inputSizeInBytes / numberSizeInBytes));
         BinaryWriter bw = new BinaryWriter(File.Open(fileName, FileMode.Create));
 
         for (ulong i = 0; i < numberAmount; i++)
@@ -43,11 +43,12 @@ public class Generator
         }
     }
 
-    public void GenerateTextFile(ulong fileSizeInBytes)
+    public void WriteRandomToTextFile(ulong inputSizeInBytes, FileMode fileMode)
     {
-        numberAmount = (ulong)Math.Ceiling((double)(fileSizeInBytes / numberSizeInBytes));
-        StreamWriter sw = new StreamWriter(File.Open(fileName, FileMode.Create));
-        //optimize
+        if (inputSizeInBytes < 0) throw new ArgumentOutOfRangeException();
+
+        numberAmount = (ulong)Math.Ceiling((double)(inputSizeInBytes / numberSizeInBytes));
+        StreamWriter sw = new StreamWriter(File.Open(fileName, fileMode));
 
         for (ulong i = 0; i < numberAmount; i++)
         {
@@ -65,13 +66,4 @@ public class Generator
         return ((longRand % (max - min)) + min);
     }
 
-    //public static void ExpandFile(ulong sizeToAdd)
-    //{
-    //    if (sizeToAdd < 0) throw new ArgumentOutOfRangeException();
-
-    //    for (int i = 0; i < length; i++)
-    //    {
-
-    //    }
-    //}
 }
