@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Lab1
 {
-    static class IListExtensions
+    static class ListExtensions
     {
         public static void Swap<T>(
             this IList<T> list,

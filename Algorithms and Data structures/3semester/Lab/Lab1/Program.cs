@@ -6,53 +6,62 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        Console.Write("Enter the size of the file you want to generate(gb/mb/kb--min 4kb): ");
-        ulong fileSizeInBytes = SizeInBytes(Console.ReadLine()!);
+        Console.Write("Enter the size of data you want to generate(gb/mb/kb--min 4kb): ");
+        ulong fileSizeInBytes = /*Converter.StringToBytes(Console.ReadLine()!)*/200*1024;
 
         Console.Write("Enter type of file you want to use for sorting(.txt-text/.bin-binary): ");
         string fileType = Console.ReadLine()!;
 
         Console.Write("How many files you want to use for sorting algorithm(up to 8): ");
-        int filesAmount = int.Parse(Console.ReadLine()!);
+        int filesAmount = /*int.Parse(Console.ReadLine()!)*/3;
 
         ulong runSizeInBytes;
         try
         {
-            Console.Write("How long do you want a single run to be?\nSkip(Enter) this for default run size:");
-            runSizeInBytes = SizeInBytes(Console.ReadLine()!);
+            Console.Write("How long do you want a single run to be?\nSkip(Enter) this for default run size: ");
+            runSizeInBytes = /*Converter.StringToBytes(Console.ReadLine()!)*/10*1024;
         }
         catch (Exception)
         {
             runSizeInBytes = (ulong)Math.Ceiling((double)(fileSizeInBytes / 512));
         }
 
-        Generator generator = new Generator( fileType);
-        generator.GenerateFile(fileSizeInBytes);
+        string sourceFileNameFull = ProgramConfig.inputFileNamePattern + fileType;
+        FileConfig sourceFile=new FileConfig(sourceFileNameFull);
+        sourceFile.dataSizeInBytes += fileSizeInBytes;
+        sourceFile.fileManager.WriteRandFromRangeToFile(fileSizeInBytes);//tight coupling, but how else can we get data from source file
 
-        /////////////////////////////////////////////////////////////////////
-        Splitter splitter = new Splitter(runSizeInBytes, fileSizeInBytes, filesAmount);
+        Splitter splitter = new Splitter(sourceFile);
+        splitter.Split(filesAmount, runSizeInBytes);
 
-        //ulong number = 1523654555;
-        //double newNum= Convert.ToDouble(number)%5.5;
-        //Console.WriteLine(newNum);
+
+        //Splitter splitter = new Splitter(runSizeInBytes, fileSizeInBytes, filesAmount);
+        //ulong additionalSize = splitter.FindAdditionalSize();
+        //fileManager.WriteRandToFile(additionalSize, FileMode.Append, 1);
+        //splitter.fileSizeInBytes += additionalSize;
+
+        ulong[] firstSeria = sourceFile.fileManager.ReadFromFile(sourceFile.dataSizeInBytes / (ulong)sourceFile.runsAmount!);
+        //sourceFile.fileManager.WriteRandFromRangeToFile(fileSizeInBytes);
+        ulong[] secondSeria = sourceFile.fileManager.ReadFromFile(sourceFile.dataSizeInBytes / (ulong)sourceFile.runsAmount!);
+
+
+        //splitter.Split(fileType);
+        ///////////////////////////////////////
+        ///
+
+        //StreamWriter streamWriter1 = new StreamWriter(File.Open("Test", FileMode.Create));
+        ////StreamWriter streamWriter2 = new StreamWriter(File.Open("Test1", FileMode.Create));
+        //ulong num = 6516165151;
+        //streamWriter1.Write(num);
+        //streamWriter1.Close();
+        //StreamReader streamReader1 = new StreamReader(File.OpenRead("Test"));
+        //char[] buffer = new char[8];
+        //streamReader1.Read(buffer);
+        //ulong readNum =ulong.Parse(buffer);
+        //Console.WriteLine(readNum);
+
+
     }
 
-    static ulong SizeInBytes(string unconvertedSize)
-    {
-        string actualSizeArray = string.Concat(unconvertedSize.ToCharArray().Where(x => x > 47 && x < 58));
-        if (string.IsNullOrEmpty(actualSizeArray)) throw new Exception("Input format incorrect");
 
-        int unitSize = int.Parse(actualSizeArray);
-        string unitMeasure = string.Concat(unconvertedSize.Except(actualSizeArray));
-
-        ulong sizeInBytes = unitMeasure.ToLower() switch
-        {
-            "b"=>(ulong)unitSize,
-            "kb" => (ulong)(1024 * unitSize),
-            "mb" => (ulong)(1024 * 1024 * unitSize),
-            "gb" => (ulong)(1024 * 1024 * 1024 * unitSize),
-            _ => 0
-        };
-        return sizeInBytes;
-    }
 }
