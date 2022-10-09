@@ -12,9 +12,9 @@ namespace Lab1
         public Random random = new Random();
 
         public abstract void ReassignToEmptyFile(string fileName);
-        public abstract ulong WriteRandFromRangeToFile(ulong inputSizeInBytes, ulong minGeneratableValue=0, ulong maxGeneratableValue=ulong.MaxValue);
+        public abstract void WriteRandFromRangeToFile(ulong inputSizeInBytes, ulong minGeneratableValue=0, ulong maxGeneratableValue=ulong.MaxValue);
         public abstract ulong[] ReadFromFile(ulong requestedSizeInBytes, ulong? startIndex=null);
-        public ulong LongRandom(ulong min, ulong max)
+        public ulong UlongRandom(ulong min, ulong max)
         {
             byte[] buf = new byte[ProgramConfig.numberSizeInBytes];
             random.NextBytes(buf);
@@ -23,6 +23,8 @@ namespace Lab1
 
             return ((longRand % (max - min)) + min);
         }
+
+        public abstract void WriteToFile(ulong[] inputData);
         //public static ulong[] readSeriaFromFile(string fileName, string fileTyp);
     }
 }

@@ -40,9 +40,17 @@ internal class Program
         //fileManager.WriteRandToFile(additionalSize, FileMode.Append, 1);
         //splitter.fileSizeInBytes += additionalSize;
 
-        ulong[] firstSeria = sourceFile.fileManager.ReadFromFile(sourceFile.dataSizeInBytes / (ulong)sourceFile.runsAmount!);
+        //ulong[] firstSeria = sourceFile.fileManager.ReadFromFile(sourceFile.dataSizeInBytes / (ulong)sourceFile.runsAmount!);
         //sourceFile.fileManager.WriteRandFromRangeToFile(fileSizeInBytes);
-        ulong[] secondSeria = sourceFile.fileManager.ReadFromFile(sourceFile.dataSizeInBytes / (ulong)sourceFile.runsAmount!);
+        //ulong[] secondSeria = sourceFile.fileManager.ReadFromFile(sourceFile.dataSizeInBytes / (ulong)sourceFile.runsAmount!);
+
+        //FileStream file = File.Open("Test.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+        //byte[] input = new byte[] { (byte)132, (byte)21, (byte)154, (byte)243, (byte)82 };
+        //file.Write(input);
+
+        //byte[] buffer=new byte[input.Length];
+        //file.Read(buffer, 0, input.Length);
+        //int[] result = buffer.Select(x => Convert.ToInt32(x)).ToArray();
 
 
         //splitter.Split(fileType);

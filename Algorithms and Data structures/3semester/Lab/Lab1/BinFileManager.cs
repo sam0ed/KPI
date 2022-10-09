@@ -37,6 +37,7 @@ namespace Lab1
 
             //ulong resultSize = requestedSizeInBytes / (ulong)ProgramConfig.numberSizeInBytes;
 
+            
             byte[] buffer = binReader.ReadBytes((int)requestedSizeInBytes);
             ulong i = 0;
             ulong ulongNumberSizeInBytes = (ulong)ProgramConfig.numberSizeInBytes;
@@ -46,10 +47,23 @@ namespace Lab1
             return resultArr;
         }
 
-        public override ulong WriteRandFromRangeToFile(ulong inputSizeInBytes, ulong minGeneratableValue = 0, ulong maxGeneratableValue = ulong.MaxValue)
+        public override void WriteRandFromRangeToFile(ulong inputSizeInBytes, ulong minGeneratableValue = 0, ulong maxGeneratableValue = ulong.MaxValue)
         {
             if (inputSizeInBytes < 0) throw new ArgumentOutOfRangeException();
+            ulong numberAmount = (ulong)Math.Ceiling((double)(inputSizeInBytes / (double)ProgramConfig.numberSizeInBytes));
 
+            ulong[] randomUlongArr=new ulong[numberAmount];
+            for (ulong i = 0; i < numberAmount; i++)
+            {
+                randomUlongArr[i] = UlongRandom(minGeneratableValue, maxGeneratableValue);
+            }
+            WriteToFile(randomUlongArr);
+            
+
+        }
+
+        public override void WriteToFile(ulong[] inputData)
+        {
             try
             {
                 if (binWriter == null)
@@ -60,18 +74,7 @@ namespace Lab1
                 binReader?.Close();
                 binWriter = new BinaryWriter(File.Open(fileName, FileMode.Append));
             }
-            ulong numberAmount = (ulong)Math.Ceiling((double)(inputSizeInBytes / (double)ProgramConfig.numberSizeInBytes));
-
-            ulong[] inputArr=new ulong[numberAmount];
-            for (ulong i = 0; i < numberAmount; i++)
-            {
-                inputArr[i] = LongRandom(minGeneratableValue, maxGeneratableValue);
-            }
-            binWriter.Write(inputArr.SelectMany(i=>BitConverter.GetBytes(i)).ToArray());
-
-           
-
-            return numberAmount;
+            binWriter.Write(inputData.SelectMany(i => BitConverter.GetBytes(i)).ToArray());
         }
     }
 }

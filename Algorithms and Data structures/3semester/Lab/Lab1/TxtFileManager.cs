@@ -64,28 +64,16 @@ internal class TxtFileManager : FileManager
 
     }
 
-    public override ulong WriteRandFromRangeToFile(ulong inputSizeInBytes, ulong minGeneratableValue = 0, ulong maxGeneratableValue = ulong.MaxValue)
+    public override void WriteRandFromRangeToFile(ulong inputSizeInBytes, ulong minGeneratableValue = 0, ulong maxGeneratableValue = ulong.MaxValue)
     {
         if (inputSizeInBytes < 0) throw new ArgumentOutOfRangeException();
         ulong numberAmount = (ulong)Math.Ceiling((double)(inputSizeInBytes / (double)ProgramConfig.numberSizeInBytes));
-
-
-        try
-        {
-            if (sw == null)
-                sw = new StreamWriter(File.Open(fileName, FileMode.Append));
-        }
-        catch (IOException)
-        {
-            sr?.Close();
-            sw = new StreamWriter(File.Open(fileName, FileMode.Append));
-        }
-
+        ulong[] randomUlongArr=new ulong[numberAmount];
         for (ulong i = 0; i < numberAmount; i++)
         {
-            sw.WriteLine(LongRandom(minGeneratableValue, maxGeneratableValue));//
+            randomUlongArr[i]= (UlongRandom(minGeneratableValue, maxGeneratableValue));//
         }
-        return numberAmount;
+        WriteToFile(randomUlongArr);
 
         //ulong targetStartLength = (ulong)new FileInfo(fileName).Length;
 
@@ -114,12 +102,27 @@ internal class TxtFileManager : FileManager
         //while (targetLength<targetStartLength+inputSizeInBytes)
         //{
         //    if (numberAmount % 512 == 0) targetLength = (ulong)new FileInfo(fileName).Length;
-        //    sw.WriteLine(LongRandom(minGeneratableValue, maxGeneratableValue));//
+        //    sw.WriteLine(UlongRandom(minGeneratableValue, maxGeneratableValue));//
         //    numberAmount++;
         //}
 
     }
 
-
-
+    public override void WriteToFile(ulong[] inputData)
+    {
+        try
+        {
+            if (sw == null)
+                sw = new StreamWriter(File.Open(fileName, FileMode.Append));
+        }
+        catch (IOException)
+        {
+            sr?.Close();
+            sw = new StreamWriter(File.Open(fileName, FileMode.Append));
+        }
+        for (int i = 0; i < inputData.Length; i++)
+        {
+            sw.WriteLine(inputData[i]);
+        }
+    }
 }

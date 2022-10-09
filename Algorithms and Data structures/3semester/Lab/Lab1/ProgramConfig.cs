@@ -11,7 +11,7 @@ namespace Lab1
         public static int numberSizeInBytes = sizeof(ulong);
         public static int numberSizeInBits = numberSizeInBytes * 8;
         public static string inputFileNamePattern= "Input";
-        private static string filesNamePattern = "SortingFile";
+        public static string filesNamePattern = "SortingFile";
 
     }
 }

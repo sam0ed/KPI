@@ -199,31 +199,19 @@ namespace Lab1
             sourceFile.fileManager.WriteRandFromRangeToFile(additionalSize, 0, 1);
             sourceFile.dataSizeInBytes += additionalSize;
             sourceFile.runsAmount = runsDistribution.Sum();
+            ulong newRunSizeInBytes = sourceFile.dataSizeInBytes / (ulong)sourceFile.runsAmount;
 
-
-            //if (sourceFile.fileType == ".txt")
-            //{
-            //    StreamReader source = new StreamReader(File.OpenRead(sourceFile.fileName));
-
-            //    List<StreamWriter> sortFiles = new List<StreamWriter>(filesAmount);
-            //    for (int i = 0; i < sortFiles.Count; i++)
-            //    {
-            //        sortFiles[i] = new StreamWriter(File.Open(filesNamePattern + i.ToString(), FileMode.Create));
-            //        for (int j = 0; j < runsDistribution[i]; j++)
-            //        {
-            //            for (ulong k = 0; k < runSizeInBytesRequested / (ulong)ProgramConfig.numberSizeInBytes; k++)
-            //            {
-            //                sortFiles[i].WriteLine(source.ReadLine());
-            //            }
-            //        }
-            //    }
-            //}
-            //else if (sourceFile.fileType == ".bin")
-            //{
-            //    BinaryReader source = new BinaryReader(File.OpenRead(ProgramConfig.inputFileNamePattern));
-            //}
-
-
+            List<FileConfig> sortFiles = new List<FileConfig>(filesAmount);
+            for (int i = 0; i < filesAmount; i++)
+            {
+                sortFiles.Add( new FileConfig(ProgramConfig.filesNamePattern+i.ToString()+sourceFile.fileType));
+                for (int j = 0; j < runsDistribution[i]; j++)
+                {
+                    sortFiles[i].fileManager.WriteToFile(sourceFile.fileManager.ReadFromFile(newRunSizeInBytes));
+                }
+                sortFiles[i].runsAmount = runsDistribution[i];
+                sortFiles[i].dataSizeInBytes = (ulong)sortFiles[i].runsAmount! * newRunSizeInBytes;
+            }
 
         }
 
