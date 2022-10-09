@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -190,7 +191,7 @@ namespace Lab1
 
         }
 
-        public void Split(int filesAmount, ulong runSizeInBytesRequested)//dont forget that runs distribution occurs inside split
+        public List<FileConfig> Split(int filesAmount, ulong runSizeInBytesRequested)//dont forget that runs distribution occurs inside split
         {
             //sourceInfo.Length returns actual size of the file on disk. bin works fine.
             long runsAmountRequested = (long)Math.Ceiling((double)sourceFile.dataSizeInBytes / runSizeInBytesRequested);
@@ -207,12 +208,15 @@ namespace Lab1
                 sortFiles.Add( new FileConfig(ProgramConfig.filesNamePattern+i.ToString()+sourceFile.fileType));
                 for (int j = 0; j < runsDistribution[i]; j++)
                 {
-                    sortFiles[i].fileManager.WriteToFile(sourceFile.fileManager.ReadFromFile(newRunSizeInBytes));
+                    ulong[] readArray = sourceFile.fileManager.ReadFromFile(newRunSizeInBytes);
+                    Array.Sort(readArray);
+                    sortFiles[i].fileManager.WriteToFile(readArray/*sourceFile.fileManager.ReadFromFile(newRunSizeInBytes)*/);
                 }
                 sortFiles[i].runsAmount = runsDistribution[i];
                 sortFiles[i].dataSizeInBytes = (ulong)sortFiles[i].runsAmount! * newRunSizeInBytes;
             }
 
+            return sortFiles;
         }
 
     }

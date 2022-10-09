@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,8 +10,8 @@ namespace Lab1
     internal class BinFileManager : FileManager
     {
         public string fileName;
-        private BinaryReader binReader;
-        private BinaryWriter binWriter;
+        private BinaryReader? binReader;
+        private BinaryWriter? binWriter;
         public BinFileManager(string fileName)
         {
             ReassignToEmptyFile(fileName);
@@ -18,30 +19,20 @@ namespace Lab1
         public override void ReassignToEmptyFile(string fileName)
         {
             this.fileName = fileName;
-            BinaryWriter bw = new BinaryWriter(File.Open(fileName, FileMode.Create));
-            bw.Dispose();
+            OpenWriter(FileMode.Create);
         }
 
         public override ulong[] ReadFromFile(ulong requestedSizeInBytes, ulong? startIndex = null)
         {
-            try
-            {
-                if (binReader == null)
-                    binReader = new BinaryReader(File.Open(fileName, FileMode.Open));
-            }
-            catch (IOException)
-            {
-                binWriter?.Close();
-                binReader = new BinaryReader(File.Open(fileName, FileMode.Open));
-            }
 
+            OpenReader(FileMode.Open);
             //ulong resultSize = requestedSizeInBytes / (ulong)ProgramConfig.numberSizeInBytes;
 
             
             byte[] buffer = binReader.ReadBytes((int)requestedSizeInBytes);
             ulong i = 0;
             ulong ulongNumberSizeInBytes = (ulong)ProgramConfig.numberSizeInBytes;
-            ulong[] resultArr = buffer.GroupBy(s => i++ / ulongNumberSizeInBytes).Select(s => BitConverter.ToUInt64(s.ToArray(), 0)).ToArray();
+            ulong[] resultArr = buffer.GroupBy(s => i++ / ulongNumberSizeInBytes).Select(s => BitConverter.ToUInt64(s.ToArray(), 0)).ToArray(); //try to use .Chunk() here instead of GroupBy()...
 
             //sr.Close();
             return resultArr;
@@ -62,19 +53,40 @@ namespace Lab1
 
         }
 
-        public override void WriteToFile(ulong[] inputData)
+        public override void WriteToFile(ulong[] inputData, FileMode fileMode = FileMode.Append)
+        {
+            OpenWriter(fileMode);
+            binWriter.Write(inputData.SelectMany(i => BitConverter.GetBytes(i)).ToArray());
+        }
+
+        public override void OpenReader(FileMode fileMode)
+        {
+            try
+            {
+                if (binReader == null)
+                    binReader = new BinaryReader(File.Open(fileName, fileMode));
+            }
+            catch (IOException)
+            {
+                binWriter?.Close();
+                binWriter = null;
+                binReader = new BinaryReader(File.Open(fileName, fileMode));
+            }
+        }
+
+        public override void OpenWriter(FileMode fileMode)
         {
             try
             {
                 if (binWriter == null)
-                    binWriter = new BinaryWriter(File.Open(fileName, FileMode.Append));
+                    binWriter = new BinaryWriter(File.Open(fileName, fileMode));
             }
             catch (IOException)
             {
                 binReader?.Close();
-                binWriter = new BinaryWriter(File.Open(fileName, FileMode.Append));
+                binReader = null;
+                binWriter = new BinaryWriter(File.Open(fileName, fileMode));
             }
-            binWriter.Write(inputData.SelectMany(i => BitConverter.GetBytes(i)).ToArray());
         }
     }
 }

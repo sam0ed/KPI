@@ -1,6 +1,7 @@
 ﻿using System.CodeDom.Compiler;
 using System.ComponentModel;
 using System.IO;
+using System.Net;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
@@ -10,17 +11,19 @@ namespace Lab1;
 internal class TxtFileManager : FileManager
 {
     public string fileName;
-    private StreamWriter sw;
-    private StreamReader sr;
+    private StreamWriter? sw;
+    private StreamReader? sr;
+
     public TxtFileManager(string fileName)
     {
         ReassignToEmptyFile(fileName);
     }
+
     public override void ReassignToEmptyFile(string fileName)
     {
         this.fileName = fileName;
-        StreamWriter sw = new StreamWriter(File.Open(fileName, FileMode.Create));
-        sw.Dispose();
+        OpenWriter(FileMode.Create);
+        //sw.Dispose();
     }
 
     public override ulong[] ReadFromFile(ulong requestedSizeInBytes, ulong? startIndex = null)
@@ -42,16 +45,7 @@ internal class TxtFileManager : FileManager
         //        srCashed = new StreamReader(File.Open(fileName, FileMode.Open));
         //    }
         //}
-        try
-        {
-            if (sr == null)
-                sr = new StreamReader(File.Open(fileName, FileMode.Open));
-        }
-        catch (IOException)
-        {
-            sw?.Close();
-            sr = new StreamReader(File.Open(fileName, FileMode.Open));
-        }
+        OpenReader(FileMode.Open);
 
         ulong resultSize = requestedSizeInBytes / (ulong)ProgramConfig.numberSizeInBytes;
         ulong[] result = new ulong[resultSize];
@@ -108,21 +102,42 @@ internal class TxtFileManager : FileManager
 
     }
 
-    public override void WriteToFile(ulong[] inputData)
+    public override void WriteToFile(ulong[] inputData, FileMode fileMode=FileMode.Append)
+    {
+        OpenWriter(fileMode);
+        for (int i = 0; i < inputData.Length; i++)
+        {
+            sw.WriteLine(inputData[i]);
+        }
+    }
+
+    public override void OpenReader(FileMode fileMode)
+    {
+        try
+        {
+            if (sr == null)
+                sr = new StreamReader(File.Open(fileName, FileMode.Open));
+        }
+        catch (IOException)
+        {
+            sw?.Close();
+            sw = null;
+            sr = new StreamReader(File.Open(fileName, FileMode.Open));
+        }
+    }
+
+    public override void OpenWriter(FileMode fileMode)
     {
         try
         {
             if (sw == null)
-                sw = new StreamWriter(File.Open(fileName, FileMode.Append));
+                sw = new StreamWriter(File.Open(fileName, fileMode));
         }
         catch (IOException)
         {
             sr?.Close();
-            sw = new StreamWriter(File.Open(fileName, FileMode.Append));
-        }
-        for (int i = 0; i < inputData.Length; i++)
-        {
-            sw.WriteLine(inputData[i]);
+            sr = null;
+            sw = new StreamWriter(File.Open(fileName, fileMode));
         }
     }
 }
