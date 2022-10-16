@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Lab1.Config;
 
-namespace Lab1
+namespace Lab1.Utility
 {
     static class Converter
     {
@@ -26,5 +28,10 @@ namespace Lab1
             };
             return sizeInBytes;
         }
+        //public static ulong[] BytesToUlongArr(byte[] source)
+        //{
+        //    ulong[] resultArr = source.Chunk(ProgramConfig.numberSizeInBytes).Select(s => BitConverter.ToUInt64(s.ToArray(), 0)).ToArray();
+        //    return resultArr;
+        //}
     }
 }

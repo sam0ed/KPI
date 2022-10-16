@@ -4,6 +4,8 @@ using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
+using Lab1.Config;
+using Lab1.Utility;
 
 namespace Lab1
 {
@@ -182,7 +184,15 @@ namespace Lab1
             }
             else if (newRunsAmount > runsAmount)
             {
-                dummySizeInBytes = (ulong)Math.Round(((double)sourceFile.dataSizeInBytes / runsAmount - newRunSize) * newRunsAmount);
+                double add = runsAmount - (double)sourceFile.dataSizeInBytes % runsAmount;
+                double fileSize= sourceFile.dataSizeInBytes+add;
+                fileSize = fileSize + (ProgramConfig.numberSizeInBytes * (ulong)newRunsAmount - fileSize % (ProgramConfig.numberSizeInBytes * (ulong)newRunsAmount));
+                while (fileSize / newRunsAmount < (double)sourceFile.dataSizeInBytes / runsAmount)
+                {
+                    fileSize += ProgramConfig.numberSizeInBytes * (ulong)newRunsAmount;
+                }
+                dummySizeInBytes = (ulong)fileSize - sourceFile.dataSizeInBytes;
+                //dummySizeInBytes = (ulong)Math.Round(((double)sourceFile.dataSizeInBytes / runsAmount - newRunSize) * newRunsAmount);
             }
             else dummySizeInBytes = 0;
 
@@ -191,7 +201,7 @@ namespace Lab1
 
         }
 
-        public List<FileConfig> Split(int filesAmount, ulong runSizeInBytesRequested)//dont forget that runs distribution occurs inside split
+        public /*List<FileConfig>*/ FileConfig[] Split(int filesAmount, ulong runSizeInBytesRequested)//dont forget that runs distribution occurs inside split
         {
             //sourceInfo.Length returns actual size of the file on disk. bin works fine.
             long runsAmountRequested = (long)Math.Ceiling((double)sourceFile.dataSizeInBytes / runSizeInBytesRequested);
@@ -202,10 +212,12 @@ namespace Lab1
             sourceFile.runsAmount = runsDistribution.Sum();
             ulong newRunSizeInBytes = sourceFile.dataSizeInBytes / (ulong)sourceFile.runsAmount;
 
-            List<FileConfig> sortFiles = new List<FileConfig>(filesAmount);
+            //List<FileConfig> sortFiles = new List<FileConfig>(filesAmount);
+            FileConfig[] sortFiles = new FileConfig[filesAmount];
             for (int i = 0; i < filesAmount; i++)
             {
-                sortFiles.Add( new FileConfig(ProgramConfig.filesNamePattern+i.ToString()+sourceFile.fileType));
+                //sortFiles.Add( new FileConfig(ProgramConfig.filesNamePattern+i.ToString()+sourceFile.fileType));
+                sortFiles[i] = new FileConfig(ProgramConfig.filesNamePattern + i.ToString() + sourceFile.fileType);
                 for (int j = 0; j < runsDistribution[i]; j++)
                 {
                     ulong[] readArray = sourceFile.fileManager.ReadFromFile(newRunSizeInBytes);

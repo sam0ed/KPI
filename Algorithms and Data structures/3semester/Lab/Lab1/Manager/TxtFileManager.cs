@@ -5,8 +5,9 @@ using System.Net;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
+using Lab1.Config;
 
-namespace Lab1;
+namespace Lab1.Manager;
 
 internal class TxtFileManager : FileManager
 {
@@ -62,10 +63,10 @@ internal class TxtFileManager : FileManager
     {
         if (inputSizeInBytes < 0) throw new ArgumentOutOfRangeException();
         ulong numberAmount = (ulong)Math.Ceiling((double)(inputSizeInBytes / (double)ProgramConfig.numberSizeInBytes));
-        ulong[] randomUlongArr=new ulong[numberAmount];
+        ulong[] randomUlongArr = new ulong[numberAmount];
         for (ulong i = 0; i < numberAmount; i++)
         {
-            randomUlongArr[i]= (UlongRandom(minGeneratableValue, maxGeneratableValue));//
+            randomUlongArr[i] = UlongRandom(minGeneratableValue, maxGeneratableValue);//
         }
         WriteToFile(randomUlongArr);
 
@@ -102,7 +103,7 @@ internal class TxtFileManager : FileManager
 
     }
 
-    public override void WriteToFile(ulong[] inputData, FileMode fileMode=FileMode.Append)
+    public override void WriteToFile(ulong[] inputData, FileMode fileMode = FileMode.Append)
     {
         OpenWriter(fileMode);
         for (int i = 0; i < inputData.Length; i++)

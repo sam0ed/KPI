@@ -4,24 +4,25 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Lab1.Manager;
 
-namespace Lab1
+namespace Lab1.Config
 {
     internal class FileConfig
     {
         public string fileName;
         public string fileType;
         public ulong dataSizeInBytes;
-        public long? runsAmount;
+        public long runsAmount;// may cause error, idk
         public FileManager fileManager;
 
         public FileConfig(string fileName)
         {
             this.fileName = fileName;
             fileType = fileName.Substring(fileName.LastIndexOf('.'));
-            this.fileManager = SelectFileManager(fileName);
+            fileManager = SelectFileManager(fileName);
             dataSizeInBytes = 0;
-            runsAmount = null;//questionable choice of default value here
+            /*runsAmount = null;*///questionable choice of default value here////////////////may cause problems here
 
             //fileManager.ReassignToEmptyFile(fileName);
 

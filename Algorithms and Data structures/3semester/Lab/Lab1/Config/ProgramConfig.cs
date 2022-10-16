@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lab1
+namespace Lab1.Config
 {
     internal static class ProgramConfig
     {
-        public static int numberSizeInBytes = sizeof(ulong);
-        public static int numberSizeInBits = numberSizeInBytes * 8;
-        public static string inputFileNamePattern= "Input";
+        public static ulong numberSizeInBytes = sizeof(ulong);
+        public static int numberSizeInBits = (int)numberSizeInBytes * 8;
+        public static string inputFileNamePattern = "Input";
         public static string filesNamePattern = "SortingFile";
 
     }

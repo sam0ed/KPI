@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lab1
+namespace Lab1.Utility
 {
-    static class ListExtensions
+    static class Extensions
     {
         public static void Swap<T>(
             this IList<T> list,
@@ -26,5 +26,16 @@ namespace Lab1
             list[firstIndex] = list[secondIndex];
             list[secondIndex] = temp;
         }
+
+        //public static ulong Sum(this ulong[] ulongs)
+        //{
+        //    ulong sum=0;
+        //    for (int i = 0; i < ulongs.Length; i++)
+        //    {
+        //        if (ulong.MaxValue - sum < ulongs[i]) throw new Exception();
+        //        sum += ulongs[i];
+        //    }
+        //    return sum;
+        //}
     }
 }

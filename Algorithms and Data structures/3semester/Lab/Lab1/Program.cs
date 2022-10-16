@@ -1,4 +1,7 @@
 ﻿using Lab1;
+using Lab1.Config;
+using Lab1.Utility;
+using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 
@@ -31,27 +34,20 @@ internal class Program
         sourceFile.dataSizeInBytes += fileSizeInBytes;
         sourceFile.fileManager.WriteRandFromRangeToFile(fileSizeInBytes);//tight coupling, but how else can we get data from source file
 
-        FileConfig result = PolyPhaseSort.Sort(sourceFile, filesAmount, runSizeInBytes);
-        //if (sourceFile.fileType == "bin")
+        Splitter splitter = new Splitter(sourceFile);
+        FileConfig[] sortFiles = splitter.Split(filesAmount, runSizeInBytes);
+
+        //PolyPhaseSort.GenerateHeaps(ref parameter);
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
+        FileConfig result = PolyPhaseSort.Sort( sortFiles, filesAmount);
+        stopwatch.Stop();
+        Console.WriteLine($"Elapsed time of sort execution is: {stopwatch.Elapsed.Seconds}");
+        ////if (sourceFile.fileType == "bin")
         result.fileManager.PrintPart(result.dataSizeInBytes);
 
-        //Splitter splitter = new Splitter(sourceFile);
-        //List<FileConfig> sortFiles= splitter.Split(filesAmount, runSizeInBytes);
 
 
-
-        //Splitter splitter = new Splitter(runSizeInBytes, fileSizeInBytes, filesAmount);
-        //ulong additionalSize = splitter.FindAdditionalSize();
-        //fileManager.WriteRandToFile(additionalSize, FileMode.Append, 1);
-        //splitter.fileSizeInBytes += additionalSize;
-
-        //ulong[] firstSeria = sourceFile.fileManager.ReadFromFile(sourceFile.dataSizeInBytes / (ulong)sourceFile.runsAmount!);
-        //sourceFile.fileManager.WriteRandFromRangeToFile(fileSizeInBytes);
-        //ulong[] secondSeria = sourceFile.fileManager.ReadFromFile(sourceFile.dataSizeInBytes / (ulong)sourceFile.runsAmount!);
-
-        //FileStream file = File.Open("Test.bin", FileMode.OpenOrCreate, FileAccess.ReadWrite);
-        //byte[] input = new byte[] { (byte)132, (byte)21, (byte)154, (byte)243, (byte)82 };
-        //file.Write(input);
 
 
 

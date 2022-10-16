@@ -4,17 +4,19 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Lab1.Config;
+using Lab1.Utility;
 
-namespace Lab1
+namespace Lab1.Manager
 {
     internal abstract class FileManager
     {
         public Random random = new Random();
 
         public abstract void ReassignToEmptyFile(string fileName);
-        public abstract void WriteRandFromRangeToFile(ulong inputSizeInBytes, ulong minGeneratableValue=0, ulong maxGeneratableValue=ulong.MaxValue);
+        public abstract void WriteRandFromRangeToFile(ulong inputSizeInBytes, ulong minGeneratableValue = 0, ulong maxGeneratableValue = ulong.MaxValue);
         public abstract void WriteToFile(ulong[] inputData, FileMode fileMode = FileMode.Append);
-        public abstract ulong[] ReadFromFile(ulong requestedSizeInBytes, ulong? startIndex=null);
+        public abstract ulong[] ReadFromFile(ulong requestedSizeInBytes, ulong? startIndex = null);
         public abstract void OpenReader(FileMode fileMode);
         public abstract void OpenWriter(FileMode fileMode);
 
@@ -25,7 +27,7 @@ namespace Lab1
             ulong longRand = BitConverter.ToUInt64(buf, 0);
             longRand >>= random.Next(0, ProgramConfig.numberSizeInBits);
 
-            return ((longRand % (max - min)) + min);
+            return longRand % (max - min) + min;
         }
 
 
@@ -39,13 +41,13 @@ namespace Lab1
                 ulong[] evenChunk = ReadFromFile(chunkInBytes);
                 for (int j = 0; j < evenChunk.Length; j++)
                 {
-                    Console.WriteLine(evenChunk[j]);
+                    Console.Write(evenChunk[j]+" ");
                 }
             }
             ulong[] remainderChunk = ReadFromFile(remainder);
             for (int i = 0; i < remainderChunk.Length; i++)
             {
-                Console.WriteLine(remainderChunk[i]);
+                Console.Write(remainderChunk[i]+" ");
             }
         }
         //public static ulong[] readSeriaFromFile(string fileName, string fileTyp);
