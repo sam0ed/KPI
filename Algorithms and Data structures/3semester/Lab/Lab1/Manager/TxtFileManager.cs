@@ -1,5 +1,6 @@
 ﻿using System.CodeDom.Compiler;
 using System.ComponentModel;
+using System.Formats.Asn1;
 using System.IO;
 using System.Net;
 using System.Reflection.Emit;
@@ -11,9 +12,8 @@ namespace Lab1.Manager;
 
 internal class TxtFileManager : FileManager
 {
-    public string fileName;
-    private StreamWriter? sw;
-    private StreamReader? sr;
+    private StreamWriter? writer;
+    private StreamReader? reader;
 
     public TxtFileManager(string fileName)
     {
@@ -24,37 +24,20 @@ internal class TxtFileManager : FileManager
     {
         this.fileName = fileName;
         OpenWriter(FileMode.Create);
-        //sw.Dispose();
+        //writer.Dispose();
     }
 
     public override ulong[] ReadFromFile(ulong requestedSizeInBytes, ulong? startIndex = null)
     {
-        //if (srCashed == null || fileReadNameCashed != fileName)//
-        //{
-        //    srCashed?.Dispose();
-        //    fileReadNameCashed = fileName;//
-        //    try
-        //    {
-        //        srCashed = new StreamReader(File.Open(fileName, FileMode.Open));
-        //    }
-        //    catch (IOException)
-        //    {
-        //        swCashed?.Close();
-        //    }
-        //    finally
-        //    {
-        //        srCashed = new StreamReader(File.Open(fileName, FileMode.Open));
-        //    }
-        //}
         OpenReader(FileMode.Open);
 
         ulong resultSize = requestedSizeInBytes / (ulong)ProgramConfig.numberSizeInBytes;
         ulong[] result = new ulong[resultSize];
         for (ulong i = 0; i < resultSize; i++)
         {
-            result[i] = ulong.Parse(sr.ReadLine()!);
+            result[i] = ulong.Parse(reader.ReadLine()!);
         }
-        //sr.Close();
+        //reader.Close();
         return result;
 
     }
@@ -70,37 +53,6 @@ internal class TxtFileManager : FileManager
         }
         WriteToFile(randomUlongArr);
 
-        //ulong targetStartLength = (ulong)new FileInfo(fileName).Length;
-
-        //if (swCashed == null || fileWriteNameCashed != fileName)//
-        //{
-        //    swCashed?.Dispose();//was in the end
-        //    fileWriteNameCashed = fileName;//
-        //    try
-        //    {
-        //        swCashed = new StreamWriter(File.Open(fileName, FileMode.Append));
-        //    }
-        //    catch (IOException)
-        //    {
-        //        srCashed?.Close();
-        //    }
-        //    finally
-        //    {
-
-        //        swCashed = new StreamWriter(File.Open(fileName, FileMode.Append));
-        //    }
-        //}
-        //sw.Dispose();
-
-        //ulong targetLength=targetStartLength;
-        //ulong numberAmount = 0;
-        //while (targetLength<targetStartLength+inputSizeInBytes)
-        //{
-        //    if (numberAmount % 512 == 0) targetLength = (ulong)new FileInfo(fileName).Length;
-        //    sw.WriteLine(UlongRandom(minGeneratableValue, maxGeneratableValue));//
-        //    numberAmount++;
-        //}
-
     }
 
     public override void WriteToFile(ulong[] inputData, FileMode fileMode = FileMode.Append)
@@ -108,37 +60,33 @@ internal class TxtFileManager : FileManager
         OpenWriter(fileMode);
         for (int i = 0; i < inputData.Length; i++)
         {
-            sw.WriteLine(inputData[i]);
+            writer.WriteLine(inputData[i]);
         }
     }
 
     public override void OpenReader(FileMode fileMode)
     {
-        try
+        if (reader == null)
         {
-            if (sr == null)
-                sr = new StreamReader(File.Open(fileName, FileMode.Open));
-        }
-        catch (IOException)
-        {
-            sw?.Close();
-            sw = null;
-            sr = new StreamReader(File.Open(fileName, FileMode.Open));
+            if (writer != null)
+            {
+                writer?.Close();
+                writer = null;
+            }
+            reader = new StreamReader(File.Open(fileName, fileMode));
         }
     }
 
     public override void OpenWriter(FileMode fileMode)
     {
-        try
+        if (writer == null)
         {
-            if (sw == null)
-                sw = new StreamWriter(File.Open(fileName, fileMode));
-        }
-        catch (IOException)
-        {
-            sr?.Close();
-            sr = null;
-            sw = new StreamWriter(File.Open(fileName, fileMode));
+            if (reader != null)
+            {
+                reader?.Close();
+                reader = null;
+            }
+            writer = new StreamWriter(File.Open(fileName, fileMode));
         }
     }
 }

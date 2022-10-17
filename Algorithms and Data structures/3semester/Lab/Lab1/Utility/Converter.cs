@@ -23,7 +23,7 @@ namespace Lab1.Utility
                 "b" => (ulong)unitSize,
                 "kb" => (ulong)(1024 * unitSize),
                 "mb" => (ulong)(1024 * 1024 * unitSize),
-                "gb" => (ulong)(1024 * 1024 * 1024 * unitSize),
+                "gb" => (ulong)(1024 * 1024 * 1024 * (ulong)unitSize),
                 _ => 0
             };
             return sizeInBytes;

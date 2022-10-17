@@ -11,6 +11,7 @@ namespace Lab1.Manager
 {
     internal abstract class FileManager
     {
+        public string fileName;
         public Random random = new Random();
 
         public abstract void ReassignToEmptyFile(string fileName);
@@ -25,7 +26,8 @@ namespace Lab1.Manager
             byte[] buf = new byte[ProgramConfig.numberSizeInBytes];
             random.NextBytes(buf);
             ulong longRand = BitConverter.ToUInt64(buf, 0);
-            longRand >>= random.Next(0, ProgramConfig.numberSizeInBits);
+            longRand >>= random.Next(0, (int)(ProgramConfig.numberSizeInBits*0.9));
+
 
             return longRand % (max - min) + min;
         }

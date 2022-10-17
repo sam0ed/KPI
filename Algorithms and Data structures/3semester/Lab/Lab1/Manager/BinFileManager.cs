@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +11,6 @@ namespace Lab1.Manager
 {
     internal class BinFileManager : FileManager
     {
-        public string fileName;
         private BinaryReader? binReader;
         private BinaryWriter? binWriter;
         public BinFileManager(string fileName)
@@ -46,6 +46,7 @@ namespace Lab1.Manager
                 return null;
             else
                 return resultArr;
+
         }
 
         public override void WriteRandFromRangeToFile(ulong inputSizeInBytes, ulong minGeneratableValue = 0, ulong maxGeneratableValue = ulong.MaxValue)
@@ -71,35 +72,32 @@ namespace Lab1.Manager
                 binWriter.Write(inputData[i]);
 
             }
-            //binWriter.Write(inputData.SelectMany(i => BitConverter.GetBytes(i)).ToArray());
+
         }
 
         public override void OpenReader(FileMode fileMode)
         {
-            try
+            if (binReader == null)
             {
-                if (binReader == null)
-                    binReader = new BinaryReader(File.Open(fileName, fileMode));
-            }
-            catch (IOException)
-            {
-                binWriter?.Close();
-                binWriter = null;
+                if (binWriter != null)
+                {
+                    binWriter?.Close();
+                    binWriter = null;
+                }
                 binReader = new BinaryReader(File.Open(fileName, fileMode));
             }
+
         }
 
         public override void OpenWriter(FileMode fileMode)
         {
-            try
+            if (binWriter == null)
             {
-                if (binWriter == null)
-                    binWriter = new BinaryWriter(File.Open(fileName, fileMode));
-            }
-            catch (IOException)
-            {
-                binReader?.Close();
-                binReader = null;
+                if (binReader != null)
+                {
+                    binReader?.Close();
+                    binReader = null;
+                }
                 binWriter = new BinaryWriter(File.Open(fileName, fileMode));
             }
         }

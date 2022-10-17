@@ -1,5 +1,6 @@
 ﻿using Lab1;
 using Lab1.Config;
+using Lab1.Manager;
 using Lab1.Utility;
 using System.Diagnostics;
 using System.Globalization;
@@ -40,17 +41,15 @@ internal class Program
         //PolyPhaseSort.GenerateHeaps(ref parameter);
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
-        FileConfig result = PolyPhaseSort.Sort( sortFiles, filesAmount);
+        FileConfig result = PolyPhaseSort.Sort(sortFiles, filesAmount);
         stopwatch.Stop();
         Console.WriteLine($"Elapsed time of sort execution is: {stopwatch.Elapsed.Seconds}");
-        ////if (sourceFile.fileType == "bin")
+
         result.fileManager.PrintPart(result.dataSizeInBytes);
 
 
-
-
-
-
+        //FileManager file1 = new MemoryMappedFileManager("SortingFile2.bin");
+        //FileManager file2 = new MemoryMappedFileManager("secondFile.bin");
     }
 
 
