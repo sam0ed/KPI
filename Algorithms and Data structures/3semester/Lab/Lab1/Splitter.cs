@@ -5,6 +5,7 @@ using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using Lab1.Config;
+using Lab1.Config.FileConfig;
 using Lab1.Utility;
 
 namespace Lab1
@@ -13,19 +14,19 @@ namespace Lab1
     internal class Splitter
     {
 
-        public FileConfig sourceFile;
+        public ExtSortFileConfig sourceFile;
 
         private List<long> runsDistribution;
         private const int fileContainsResultIndex = 1;
         private int mergeFileIndex = 0;
         private const string filesNamePattern = "SortingFile";
 
-        public Splitter(FileConfig sourceFile)
+        public Splitter(ExtSortFileConfig sourceFile)
         {
             ChangeSourceFile(sourceFile);
         }
 
-        public void ChangeSourceFile(FileConfig sourceFile)
+        public void ChangeSourceFile(ExtSortFileConfig sourceFile)
         {
             this.sourceFile = sourceFile;
         }
@@ -91,23 +92,23 @@ namespace Lab1
 
         }
 
-        public /*List<FileConfig>*/ FileConfig[] Split(int filesAmount, ulong runSizeInBytesRequested)//dont forget that runs distribution occurs inside split
+        public /*List<FileConfig>*/ ExtSortFileConfig[] Split(int filesAmount, ulong runSizeInBytesRequested)//dont forget that runs distribution occurs inside split
         {
             //sourceInfo.Length returns actual size of the file on disk. bin works fine.
             long runsAmountRequested = (long)Math.Ceiling((double)sourceFile.dataSizeInBytes / runSizeInBytesRequested);
             runsDistribution = new List<long>(FibonacciRunsDistribution(filesAmount, runsAmountRequested));
             ulong additionalSize = FindAdditionalSize(runsAmountRequested);
             sourceFile.fileManager.WriteRandFromRangeToFile(additionalSize, 0, 1);
-            sourceFile.dataSizeInBytes += additionalSize;
+            //sourceFile.dataSizeInBytes += additionalSize;
             sourceFile.runsAmount = runsDistribution.Sum();
             ulong newRunSizeInBytes = sourceFile.dataSizeInBytes / (ulong)sourceFile.runsAmount;
 
             //List<FileConfig> sortFiles = new List<FileConfig>(filesAmount);
-            FileConfig[] sortFiles = new FileConfig[filesAmount];
+            ExtSortFileConfig[] sortFiles = new ExtSortFileConfig[filesAmount];
             for (int i = 0; i < filesAmount; i++)
             {
                 //sortFiles.Add( new FileConfig(ProgramConfig.filesNamePattern+i.ToString()+sourceFile.fileType));
-                sortFiles[i] = new FileConfig(ProgramConfig.filesNamePattern + i.ToString() + sourceFile.fileType);
+                sortFiles[i] = new ExtSortFileConfig(ProgramConfig.filesNamePattern + i.ToString() + sourceFile.fileType);
                 for (int j = 0; j < runsDistribution[i]; j++)
                 {
                     ulong[] readArray = sourceFile.fileManager.ReadFromFile(newRunSizeInBytes);
@@ -115,7 +116,7 @@ namespace Lab1
                     sortFiles[i].fileManager.WriteToFile(readArray/*sourceFile.fileManager.ReadFromFile(newRunSizeInBytes)*/);
                 }
                 sortFiles[i].runsAmount = runsDistribution[i];
-                sortFiles[i].dataSizeInBytes = (ulong)sortFiles[i].runsAmount! * newRunSizeInBytes;
+                //sortFiles[i].dataSizeInBytes = (ulong)sortFiles[i].runsAmount! * newRunSizeInBytes;
             }
 
             return sortFiles;

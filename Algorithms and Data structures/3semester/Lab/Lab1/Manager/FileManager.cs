@@ -5,21 +5,36 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Lab1.Config;
+using Lab1.Config.FileConfig;
 using Lab1.Utility;
 
 namespace Lab1.Manager
 {
     internal abstract class FileManager
     {
-        public string fileName;
-        public Random random = new Random();
+        public FileConfig fileConfig;
+        public readonly Random random = new Random();
+        public Action<FileConfig, ulong> changeFileConfigAfterWriting;
+        public Action<FileConfig, ulong> changeFileConfigAfterReading;
 
-        public abstract void ReassignToEmptyFile(string fileName);
         public abstract void WriteRandFromRangeToFile(ulong inputSizeInBytes, ulong minGeneratableValue = 0, ulong maxGeneratableValue = ulong.MaxValue);
         public abstract void WriteToFile(ulong[] inputData, FileMode fileMode = FileMode.Append);
         public abstract ulong[] ReadFromFile(ulong requestedSizeInBytes, ulong? startIndex = null);
         public abstract void OpenReader(FileMode fileMode);
         public abstract void OpenWriter(FileMode fileMode);
+
+        public FileManager(FileConfig fileConfig, Action<FileConfig,ulong> doOnWriting, Action<FileConfig, ulong> doOnReading)
+        {
+            ReassignToEmptyFile(fileConfig);
+            changeFileConfigAfterWriting += doOnWriting;
+            changeFileConfigAfterReading += doOnReading;
+        }
+
+        public void ReassignToEmptyFile(FileConfig fileConfig)
+        {
+            this.fileConfig = fileConfig;
+            OpenWriter(FileMode.Create);
+        }
 
         public ulong UlongRandom(ulong min, ulong max)
         {
@@ -52,6 +67,5 @@ namespace Lab1.Manager
                 Console.Write(remainderChunk[i]+" ");
             }
         }
-        //public static ulong[] readSeriaFromFile(string fileName, string fileTyp);
     }
 }

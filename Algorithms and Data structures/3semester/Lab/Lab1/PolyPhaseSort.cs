@@ -5,20 +5,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Lab1.Config;
+using Lab1.Config.FileConfig;
 using Lab1.Utility;
 
 namespace Lab1
 {
     internal static class PolyPhaseSort
     {
-        public static FileConfig Sort(FileConfig[] sortFiles, int filesAmount)
+        public static ExtSortFileConfig Sort(ExtSortFileConfig[] sortFiles, int filesAmount)
         {
             BinaryHeap heap = new BinaryHeap();
             heap.GenerateHeap(sortFiles.Length - 1);
             int emptyFileIndex = -1;
-            FileConfig? emptyFile = null;
+            ExtSortFileConfig? emptyFile = null;
             int nonEmptyFileIndex;
-            FileConfig[] nonEmptyFiles = new FileConfig[sortFiles.Length - 1];
+            ExtSortFileConfig[] nonEmptyFiles = new ExtSortFileConfig[sortFiles.Length - 1];
             while (sortFiles.Select(x => x.runsAmount).Sum() != 1)
             {
                 nonEmptyFileIndex = 0;
@@ -36,9 +37,7 @@ namespace Lab1
                     }
                 }
                 long amountOfRunsToMergeInCurIter = nonEmptyFiles.Select(x => x.runsAmount).Min();
-                emptyFile?.fileManager.ReassignToEmptyFile(sortFiles[emptyFileIndex].fileName);
-                emptyFile.dataSizeInBytes = 0;
-                emptyFile.runsAmount = 0;
+                emptyFile?.ReassignToEmptyFile();
 
                 ulong[] amountOfNumbersInRunsRemain;
                 for (int i = 0; i < amountOfRunsToMergeInCurIter; i++)
@@ -57,7 +56,7 @@ namespace Lab1
                     }
                     ulong readNumberCashed = 0;
                     ulong readNumber;
-                    while ( heap.heap[0]!=null)
+                    while (heap.heap[0] != null)
                     {
                         readNumber = (ulong)heap.heap[0]!;
 
@@ -65,7 +64,7 @@ namespace Lab1
                         else readNumberCashed = readNumber;
 
                         emptyFile.fileManager.WriteToFile(new ulong[] { readNumber });
-                        emptyFile.dataSizeInBytes += ProgramConfig.numberSizeInBytes;
+                        //emptyFile.dataSizeInBytes += ProgramConfig.numberSizeInBytes;
 
                         ReassignRemovedLeaf(readNumber, ref nonEmptyFiles, ref heap, ref amountOfNumbersInRunsRemain);
                     }
@@ -79,55 +78,49 @@ namespace Lab1
             sortFiles[emptyFileIndex].fileManager.OpenReader(FileMode.Open);
             return sortFiles[emptyFileIndex];
 
-
-
-
-            //int emptyFileIndex = -1;
-            //while (sortFiles.Select(x => x.runsAmount).Sum() != 1)
-            //{
-            //    FileConfig emptyFile = sortFiles.Where(x => x.runsAmount == 0).First();
-
-            //    for (int i = 0; i < sortFiles.Length; i++)/////////////////////////
-            //    {
-            //        if (sortFiles[i] == emptyFile) emptyFileIndex = i;
-            //    }
-            //    long amountOfRunsToMergeInCurIter = sortFiles.Where(x => x != emptyFile).Select(x => x.runsAmount).Min() /*?? throw new Exception()*/;
-            //    sortFiles[emptyFileIndex].fileManager.ReassignToEmptyFile(sortFiles[emptyFileIndex].fileName);
-
-
-            //    for (long i = 0; i < amountOfRunsToMergeInCurIter; i++)
-            //    {
-            //        ulong[][] nextRunsToBeMerged = new ulong[sortFiles.Length - 1][];
-            //        int nextRunsToBeMergedIndex = 0;
-            //        for (int j = 0; j < sortFiles.Length; j++)
-            //        {
-            //            if (j != emptyFileIndex)
-            //            {
-            //                ulong runSizeInBytes = sortFiles[j].dataSizeInBytes / (ulong)sortFiles[j].runsAmount;
-            //                nextRunsToBeMerged[nextRunsToBeMergedIndex++] = sortFiles[j].fileManager.ReadFromFile(runSizeInBytes);
-            //                sortFiles[j].runsAmount--;
-            //                sortFiles[j].dataSizeInBytes -= runSizeInBytes;
-            //            }
-            //        }
-            //        ulong[] mergedSeria = QuickSortMerge(nextRunsToBeMerged);
-            //        sortFiles[emptyFileIndex].fileManager.WriteToFile(mergedSeria);
-            //        sortFiles[emptyFileIndex].runsAmount++;
-            //        sortFiles[emptyFileIndex].dataSizeInBytes += (ulong)mergedSeria.Length * ProgramConfig.numberSizeInBytes;
-
-            //    }
-            //}
-            //sortFiles[emptyFileIndex].fileManager.OpenReader(FileMode.Open);
-            //return sortFiles[emptyFileIndex];
         }
-
-        public static ulong[] QuickSortMerge(ulong[][] seiesToMerge)
+        public static ExtSortFileConfig MergedRunsInternalSort(ExtSortFileConfig[] sortFiles, int filesAmount)
         {
-            ulong[] result = seiesToMerge.SelectMany(x => x).ToArray();
-            Array.Sort(result);
-            return result;
+            int emptyFileIndex = -1;
+            while (sortFiles.Select(x => x.runsAmount).Sum() != 1)
+            {
+                FileConfig emptyFile = sortFiles.Where(x => x.runsAmount == 0).First();
+
+                for (int i = 0; i < sortFiles.Length; i++)/////////////////////////
+                {
+                    if (sortFiles[i] == emptyFile) emptyFileIndex = i;
+                }
+                long amountOfRunsToMergeInCurIter = sortFiles.Where(x => x != emptyFile).Select(x => x.runsAmount).Min() /*?? throw new Exception()*/;
+                sortFiles[emptyFileIndex].fileManager.ReassignToEmptyFile(sortFiles[emptyFileIndex]);
+
+
+                for (long i = 0; i < amountOfRunsToMergeInCurIter; i++)
+                {
+                    ulong[][] nextRunsToBeMerged = new ulong[sortFiles.Length - 1][];
+                    int nextRunsToBeMergedIndex = 0;
+                    for (int j = 0; j < sortFiles.Length; j++)
+                    {
+                        if (j != emptyFileIndex)
+                        {
+                            ulong runSizeInBytes = sortFiles[j].dataSizeInBytes / (ulong)sortFiles[j].runsAmount;
+                            nextRunsToBeMerged[nextRunsToBeMergedIndex++] = sortFiles[j].fileManager.ReadFromFile(runSizeInBytes);
+                            sortFiles[j].runsAmount--;
+                            //sortFiles[j].dataSizeInBytes -= runSizeInBytes;
+                        }
+                    }
+                    ulong[] mergedSeria = nextRunsToBeMerged.SelectMany(x => x).ToArray();
+                    Array.Sort(mergedSeria);
+                    sortFiles[emptyFileIndex].fileManager.WriteToFile(mergedSeria);
+                    sortFiles[emptyFileIndex].runsAmount++;
+                    //sortFiles[emptyFileIndex].dataSizeInBytes += (ulong)mergedSeria.Length * ProgramConfig.numberSizeInBytes;
+
+                }
+            }
+            sortFiles[emptyFileIndex].fileManager.OpenReader(FileMode.Open);
+            return sortFiles[emptyFileIndex];
         }
 
-        public static void ReassignRemovedLeaf(ulong? leafValueToReplace, ref FileConfig[] inputFiles, ref BinaryHeap heap, ref ulong[] numbersInRunRemain/*, ref ulong mergedRunLength*/) // the shittiest method ive seen so far
+        public static void ReassignRemovedLeaf(ulong? leafValueToReplace, ref ExtSortFileConfig[] inputFiles, ref BinaryHeap heap, ref ulong[] numbersInRunRemain/*, ref ulong mergedRunLength*/) // the shittiest method ive seen so far
         {
             ulong[]? replacementNumber;
             for (int i = heap.leafsSlotsStartIndex; i < heap.leafsSlotsStartIndex + inputFiles.Length; i++)
@@ -138,7 +131,7 @@ namespace Lab1
                     {
                         replacementNumber = inputFiles[i - heap.leafsSlotsStartIndex].fileManager.ReadFromFile(ProgramConfig.numberSizeInBytes);
                         --numbersInRunRemain[i - heap.leafsSlotsStartIndex];
-                        inputFiles[i - heap.leafsSlotsStartIndex].dataSizeInBytes -= ProgramConfig.numberSizeInBytes;
+                        //inputFiles[i - heap.leafsSlotsStartIndex].dataSizeInBytes -= ProgramConfig.numberSizeInBytes;
                         //--mergedRunLength;
                     }
                     else

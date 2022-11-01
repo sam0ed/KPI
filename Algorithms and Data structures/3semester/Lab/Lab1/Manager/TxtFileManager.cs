@@ -7,6 +7,7 @@ using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using Lab1.Config;
+using Lab1.Config.FileConfig;
 
 namespace Lab1.Manager;
 
@@ -15,17 +16,8 @@ internal class TxtFileManager : FileManager
     private StreamWriter? writer;
     private StreamReader? reader;
 
-    public TxtFileManager(string fileName)
-    {
-        ReassignToEmptyFile(fileName);
-    }
-
-    public override void ReassignToEmptyFile(string fileName)
-    {
-        this.fileName = fileName;
-        OpenWriter(FileMode.Create);
-        //writer.Dispose();
-    }
+    public TxtFileManager(FileConfig fileConfig, Action<FileConfig, ulong> doOnWriting, Action<FileConfig, ulong> doOnReading)
+        : base(fileConfig, doOnWriting, doOnReading) { }
 
     public override ulong[] ReadFromFile(ulong requestedSizeInBytes, ulong? startIndex = null)
     {
@@ -37,7 +29,7 @@ internal class TxtFileManager : FileManager
         {
             result[i] = ulong.Parse(reader.ReadLine()!);
         }
-        //reader.Close();
+        changeFileConfigAfterReading.Invoke(fileConfig, (ulong)result.Length * ProgramConfig.numberSizeInBytes);
         return result;
 
     }
@@ -62,6 +54,7 @@ internal class TxtFileManager : FileManager
         {
             writer.WriteLine(inputData[i]);
         }
+        changeFileConfigAfterWriting.Invoke(fileConfig, (ulong)inputData.Length * ProgramConfig.numberSizeInBytes);
     }
 
     public override void OpenReader(FileMode fileMode)
@@ -73,7 +66,7 @@ internal class TxtFileManager : FileManager
                 writer?.Close();
                 writer = null;
             }
-            reader = new StreamReader(File.Open(fileName, fileMode));
+            reader = new StreamReader(File.Open(fileConfig.fileName, fileMode));
         }
     }
 
@@ -86,7 +79,7 @@ internal class TxtFileManager : FileManager
                 reader?.Close();
                 reader = null;
             }
-            writer = new StreamWriter(File.Open(fileName, fileMode));
+            writer = new StreamWriter(File.Open(fileConfig.fileName, fileMode));
         }
     }
 }

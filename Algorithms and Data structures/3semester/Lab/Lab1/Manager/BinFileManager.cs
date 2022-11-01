@@ -1,4 +1,5 @@
 ﻿using Lab1.Config;
+using Lab1.Config.FileConfig;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,15 +14,7 @@ namespace Lab1.Manager
     {
         private BinaryReader? binReader;
         private BinaryWriter? binWriter;
-        public BinFileManager(string fileName)
-        {
-            ReassignToEmptyFile(fileName);
-        }
-        public override void ReassignToEmptyFile(string fileName)
-        {
-            this.fileName = fileName;
-            OpenWriter(FileMode.Create);
-        }
+        public BinFileManager(FileConfig fileConfig, Action<FileConfig, ulong> doOnWriting, Action<FileConfig, ulong> doOnReading) : base(fileConfig, doOnWriting, doOnReading) { }
 
         public override ulong[]? ReadFromFile(ulong requestedSizeInBytes, ulong? startIndex = null)
         {
@@ -41,7 +34,7 @@ namespace Lab1.Manager
                     i = arrayLength;
                 }
             }
-
+            changeFileConfigAfterReading.Invoke(fileConfig, (ulong)resultArr.Length * ProgramConfig.numberSizeInBytes);
             if (resultArr.Length == 0)
                 return null;
             else
@@ -72,7 +65,7 @@ namespace Lab1.Manager
                 binWriter.Write(inputData[i]);
 
             }
-
+            changeFileConfigAfterWriting.Invoke(fileConfig, (ulong)inputData.Length*ProgramConfig.numberSizeInBytes);
         }
 
         public override void OpenReader(FileMode fileMode)
@@ -84,7 +77,7 @@ namespace Lab1.Manager
                     binWriter?.Close();
                     binWriter = null;
                 }
-                binReader = new BinaryReader(File.Open(fileName, fileMode));
+                binReader = new BinaryReader(File.Open(fileConfig.fileName, fileMode));
             }
 
         }
@@ -98,7 +91,7 @@ namespace Lab1.Manager
                     binReader?.Close();
                     binReader = null;
                 }
-                binWriter = new BinaryWriter(File.Open(fileName, fileMode));
+                binWriter = new BinaryWriter(File.Open(fileConfig.fileName, fileMode));
             }
         }
     }

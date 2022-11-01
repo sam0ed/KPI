@@ -1,5 +1,6 @@
 ﻿using Lab1;
 using Lab1.Config;
+using Lab1.Config.FileConfig;
 using Lab1.Manager;
 using Lab1.Utility;
 using System.Diagnostics;
@@ -31,17 +32,16 @@ internal class Program
         }
 
         string sourceFileNameFull = ProgramConfig.inputFileNamePattern + fileType;
-        FileConfig sourceFile = new FileConfig(sourceFileNameFull);
-        sourceFile.dataSizeInBytes += fileSizeInBytes;
-        sourceFile.fileManager.WriteRandFromRangeToFile(fileSizeInBytes);//tight coupling, but how else can we get data from source file
+        FileConfig sourceFile = new ExtSortFileConfig(sourceFileNameFull);
+        (sourceFile as ExtSortFileConfig).fileManager.WriteRandFromRangeToFile(fileSizeInBytes);//tight coupling, but how else can we get data from source file
 
-        Splitter splitter = new Splitter(sourceFile);
-        FileConfig[] sortFiles = splitter.Split(filesAmount, runSizeInBytes);
+        Splitter splitter = new Splitter(sourceFile as ExtSortFileConfig);
+        ExtSortFileConfig[] sortFiles = splitter.Split(filesAmount, runSizeInBytes);
 
         //PolyPhaseSort.GenerateHeaps(ref parameter);
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
-        FileConfig result = PolyPhaseSort.Sort(sortFiles, filesAmount);
+        ExtSortFileConfig result = PolyPhaseSort.MergedRunsInternalSort(sortFiles, filesAmount);
         stopwatch.Stop();
         Console.WriteLine($"Elapsed time of sort execution is: {stopwatch.Elapsed.Seconds}");
 

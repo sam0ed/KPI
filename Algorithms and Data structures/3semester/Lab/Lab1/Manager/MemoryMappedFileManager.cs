@@ -1,4 +1,5 @@
-﻿using Lab1.Utility;
+﻿using Lab1.Config.FileConfig;
+using Lab1.Utility;
 using System;
 using System.Collections.Generic;
 using System.IO.MemoryMappedFiles;
@@ -12,10 +13,7 @@ namespace Lab1.Manager
     {
         public string fileName;
         private MemoryMappedFile fileManager;
-        public MemoryMappedFileManager(string fileName)
-        {
-            ReassignToEmptyFile(fileName);
-        }
+        public MemoryMappedFileManager(FileConfig fileConfig, Action<FileConfig, ulong> doOnWriting, Action<FileConfig, ulong> doOnReading) : base(fileConfig, doOnWriting, doOnReading) { }
 
         public override void OpenReader(FileMode fileMode)
         {
@@ -30,13 +28,6 @@ namespace Lab1.Manager
         public override ulong[] ReadFromFile(ulong requestedSizeInBytes, ulong? startIndex = null)
         {
             throw new NotImplementedException();
-        }
-
-        public override void ReassignToEmptyFile(string fileName)
-        {
-            this.fileName = fileName;
-            fileManager = MemoryMappedFile.CreateFromFile(fileName, FileMode.Open, fileName);
-            
         }
 
         public override void WriteRandFromRangeToFile(ulong inputSizeInBytes, ulong minGeneratableValue = 0, ulong maxGeneratableValue = ulong.MaxValue)
