@@ -41,7 +41,7 @@ internal class Program
         //PolyPhaseSort.GenerateHeaps(ref parameter);
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
-        ExtSortFileConfig result = PolyPhaseSort.MergedRunsInternalSort(sortFiles, filesAmount);
+        ExtSortFileConfig result = PolyPhaseSort.Sort(sortFiles, filesAmount);
         stopwatch.Stop();
         Console.WriteLine($"Elapsed time of sort execution is: {stopwatch.Elapsed.Seconds}");
 
