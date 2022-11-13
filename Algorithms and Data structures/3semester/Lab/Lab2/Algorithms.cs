@@ -6,95 +6,72 @@ namespace Lab2;
 
 public static class Algorithms
 {
-    public static (State?, long, long) LDFS(State start, int depthConstraint)
+    public static (long, long, int) LDFS(State start, int depthConstraint, Action<State, int, int> printer)
     {
-        State? solution = null;
+        bool solutionFound = false;
         long stepCounter = 0;
-        long statesAmount = 0;
+        long statesAmount = 1;
+        (int y, int x) cursorCoord = (Console.CursorTop, Console.CursorLeft);
 
         var stack = new Stack<State>();
         stack.Push(start);
 
-        while (stack.Count > 0 && solution == null)
+        while (stack.Count > 0 && !solutionFound)
         {
             var vertex = stack.Pop();
             stepCounter++;
-            statesAmount += stack.Count;
-            if (stepCounter % 1_000_000 == 0)
-                Console.WriteLine($"Stack count: {stack.Count}\tAmount of steps: {stepCounter}");
+            printer(vertex, cursorCoord.y, cursorCoord.x);
 
             if (vertex.Depth < depthConstraint)
             {
                 var proceedingStates = vertex.GetProceedingStates();
+                statesAmount += proceedingStates.Count;
                 foreach (var state in proceedingStates)
                 {
-                    if (state.IsSolution())
-                    {
-                        solution = state;
-                        // Console.WriteLine($"Solution found at iteration: {stepCounter}");
-                    }
+                    if (state.IsSolution()) solutionFound = true;
 
                     stack.Push(state);
                 }
             }
         }
-
-        if (stack.Count == 0) Console.WriteLine($"The stack was emptied at iteration: {stepCounter}");
-        return (solution, stepCounter, statesAmount / stepCounter);
+        return ( stepCounter, statesAmount, stack.Count);
     }
 
-    public static ( long, long) AStar(State start)
+    public static (long, long, int) AStar(State start, Action<State, int, int> printer)
     {
         bool isSolvable = !Convert.ToBoolean(inversionCount(Program.squishArr(start.Map)) % 2);
-        State? solution = null;
+        bool solutionFound = false;
         long stepCounter = 0;
-        long statesAmount = 0;
-        OrderedList<State> path = new OrderedList<State>(new DepthComparer());
+        long statesAmount = 1;
         (int y, int x) cursorCoord = (Console.CursorTop, Console.CursorLeft);
-        StatePrinter printer = new StatePrinter();
 
         OrderedList<State> lowPriorityQuee = new OrderedList<State>(new HeuristicsComparer());
         lowPriorityQuee.Add(start);
 
-        while (solution == null && isSolvable)
+        while (!solutionFound && isSolvable)
         {
             var vertex = lowPriorityQuee.First();
             lowPriorityQuee.RemoveAt(0);
-
-            path.Clear();
-            bool reachedBottom = false;
-            State current = vertex;
-            while (!reachedBottom)
-            {
-                State? parent = current.ParentState;
-                if (parent == null) reachedBottom=true;
-                else path.Add(parent);
-                current = parent;
-            }
-            printer.PrintStates(path, cursorCoord.y, cursorCoord.x);
-
             stepCounter++;
-            statesAmount += lowPriorityQuee.Count;
-            // Console.WriteLine($"Stack count: {lowPriorityQuee.Count}\tAmount of steps: {stepCounter}");
+            if (vertex.IsSolution()) solutionFound = true;
 
-            if (vertex.IsSolution())
-            {
-                solution = vertex;
-                Console.WriteLine($"Solution found at iteration: {stepCounter}");
-            }
+            printer(vertex, cursorCoord.y, cursorCoord.x);
 
             var proceedingStates = vertex.GetProceedingStates();
             foreach (var state in proceedingStates)
             {
                 if (!Program.Equal(start.Map, state.Map) &&
                     !lowPriorityQuee.Any(x => Program.Equal(x.Map, state.Map)))
+                {
                     lowPriorityQuee.Add(state);
+                    statesAmount++;
+                }
             }
 
             start = vertex;
         }
 
-        return ( stepCounter, stepCounter == 0 ? 0 : statesAmount / stepCounter);
+        return (stepCounter, statesAmount, lowPriorityQuee.Count);
     }
 
     public static int inversionCount(int?[] arr)

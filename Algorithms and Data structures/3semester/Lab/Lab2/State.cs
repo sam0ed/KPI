@@ -3,7 +3,7 @@ using Microsoft.VisualBasic.CompilerServices;
 
 namespace Lab2;
 
-public class State //: IComparable<State>
+public class State
 {
     public State(int depth, State? parentState=null, int?[,]? map = null, (int, int)? emptyEntryCoord = null)
     {
@@ -86,13 +86,6 @@ public class State //: IComparable<State>
 
         return proceedingStates;
     }
-
-    // public int CompareTo(State? other)
-    // {
-    //     if (this.Heuristic() < other.Heuristic()) return -1;
-    //     else if (this.Heuristic() == other.Heuristic()) return 0;
-    //     else return 1;
-    // }
 
     public override string ToString()
     {
@@ -187,7 +180,6 @@ public class State //: IComparable<State>
 
     public static bool operator ==(State? st1, State? st2)
     {
-        // if (st1.Equals(null)  || st2.Equals(null)) return st1.Equals(st2);
         return st1?.Heuristic() == st2?.Heuristic();
     }
 

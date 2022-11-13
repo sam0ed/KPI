@@ -1,8 +1,18 @@
-﻿namespace Lab2;
+﻿using Lab2.IComparer;
+
+namespace Lab2;
 
 internal class StatePrinter
 {
+    public StatePrinter(string sample)
+    {
+        stateHeight = sample.Count(c => c == '\n');
+        stateWidth = sample.Substring(0, sample.IndexOf('\n')).Length;
+    }
     public int? PreviousPathLength { get; set; } = null;
+    public const string transitSign = " => "; 
+    public int stateHeight { get; set; }
+    public int stateWidth { get; set; }
 
     public void PrintInLine(int paddingY, int paddingX, int width, string filling)
     {
@@ -20,16 +30,13 @@ internal class StatePrinter
         else throw new ArgumentException();
     }
 
-    public void PrintStates(OrderedList<State> states, int paddingY, int paddingX = 0)
+    
+
+    public void PrintStates(State state, int paddingY, int paddingX = 0)
     {
+        OrderedList<State> states = FindPath(state);
         if (states.Any())
         {
-            string stateStr = states[0].ToString();
-            int stateHeight = stateStr.Count(c => c == '\n');
-            int stateWidth = stateStr.Substring(0, stateStr.IndexOf('\n')).Length;
-
-            string transitSign = " => ";
-
             if (PreviousPathLength != null)
             {
                 int linesToRemove =
@@ -95,5 +102,21 @@ internal class StatePrinter
             // }
             //
         }
+    }
+
+    public OrderedList<State> FindPath(State current)
+    {
+        OrderedList<State> path = new OrderedList<State>(new DepthComparer());
+        bool reachedBottom = false;
+        path.Add(current);
+        State? parent;
+        while (!reachedBottom)
+        {
+            parent = current.ParentState;
+            if (parent == null) reachedBottom = true;
+            else path.Add(parent);
+            current = parent;
+        }
+        return path;
     }
 }

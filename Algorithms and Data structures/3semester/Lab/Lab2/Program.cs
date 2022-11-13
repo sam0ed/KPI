@@ -10,49 +10,45 @@ class Program
             { 7, 4, 3 },
             { 5, null, 8 }
         };
-        int?[,] map2 =
-        {
-            { 8, 6, null, },
-            { 5, 4, 3 },
-            { 1, 2, 7 }
-        };
-        
-        List<(State init, State? solution, long counter, long avgSavedStates)> run =
-            new List<(State, State?, long, long)>(10);
+
+        List<(State init, long counter, long savedStates, int savedStatesInMemory)> run =
+            new List<(State, long, long, int)>(20);
+        StatePrinter printer=new StatePrinter(new State(0).ToString());
         for (int i = 0; i < run.Capacity; i++)
         {
-            var initialState = new State(0,null);
-            Console.WriteLine($"Iteration: {i + 1}\n");
-            // var result = Algorithms.LDFS(initialState, 10);
-            var result = Algorithms.AStar(initialState);
-            if (result.Item1 == null)
-                Console.WriteLine("Solution couldn`t be found");
+            Console.WriteLine($"Iteration: {i + 1}");
+           
+            var initialState = new State(0, null);
+            var result = Algorithms.LDFS(initialState, 7, printer.PrintStates);
+            //var result = Algorithms.AStar(initialState, printer.PrintStates);
+            run.Add((initialState, result.Item1, result.Item2, result.Item3)!);
+
+            Console.WriteLine($"-----------------------------------------------------------------------------------------");
+            if (result.Item1 == 0)
+                Console.WriteLine($"Solution couldn`t be found");
             else
             {
-                // Console.WriteLine($"-----------------------------------------------------------------------------------------\n" +
-                //                   $"Amount of steps to find the solution: {result.Item2}\n" +
-                //                   $"Amount of failed solution searches: {0}\n" +
-                //                   $"Amount of steps made: {avgStepsAmount}\n" +
-                //                   $"Amount of states saved in memory at particular step: {avgSavedStates}\n" +
-                //                   $"-----------------------------------------------------------------------------------------\n");
+                Console.WriteLine($"Amount of steps to find the solution: {run[i].counter}\n" +
+                              $"Amount of failed solution searches: {0}\n" +
+                              $"Amount of states: {run[i].savedStates}\n" +
+                              $"Amount of states saved in memory: {run[i].savedStatesInMemory}");
             }
-        
-            run.Add((initialState, result.Item1, result.Item2, result.Item3)!);
+            Console.WriteLine($"-----------------------------------------------------------------------------------------");
         }
-        
-        
-        var avgStepsForSolution = run.Where(x => x.solution != null).Any()
-            ? run.Where(x => x.solution != null).Select(x => x.counter).Average()
+
+
+        var avgStepsForSolution = run.Where(x => x.counter != 0).Any()
+            ? run.Where(x => x.counter != 0).Select(x => x.counter).Average()
             : (double?)null;
-        var notFoundSolution = run.Count(x => x.solution == null);
-        var avgStepsAmount = run.Select(x => x.counter).Average();
-        var avgSavedStates = run.Select(x => x.avgSavedStates).Average();
-        
+        var notFoundSolution = run.Count(x => x.counter == 0);
+        var avgSavedStates = run.Select(x => x.savedStates).Average();
+        var avgSavedStatesInMemory = run.Select(x => x.savedStatesInMemory).Average();
+
         Console.WriteLine(
             $"-----------------------------------------------------------------------------------------\n" +
             $"Average amount of steps to find the solution: {avgStepsForSolution}\n" +
             $"Amount of failed solution searches: {notFoundSolution}\n" +
-            $"Average amount of steps made: {avgStepsAmount}\n" +
+            $"Average amount of steps made: {avgSavedStates}\n" +
             $"Average amount of states saved in memory at particular step: {avgSavedStates}\n" +
             $"-----------------------------------------------------------------------------------------\n");
     }
