@@ -6,8 +6,8 @@ namespace Lab2
     {
         #region Fields
 
-        public List<Node<TValue>?> Connections { get; set; }
-        public TValue? Value { get; set; }
+        public List<Node<TValue>> Connections { get; set; }
+        public TValue Value { get; set; }
 
         #endregion
 
@@ -30,19 +30,7 @@ namespace Lab2
                 int? insertIndex = pickInsertIndex(node, this);
                 if (insertIndex != null)
                 {
-                    if (Connections![(int)insertIndex] != null)
-                        Connections[(int)insertIndex]!.AddNode(node, pickInsertIndex);
-                    else
-                    {
-                        Connections[(int)insertIndex] = node;
-                        try
-                        {
-                            node?.AddNode(this, pickInsertIndex);
-                        }
-                        catch
-                        {
-                        } //add exception processing here
-                    }
+                    Connections[(int)insertIndex].AddNode(node, pickInsertIndex);
                 }
                 else
                 {
@@ -61,65 +49,73 @@ namespace Lab2
                     "Current node already contains connection to the node you are trying to add");
         }
 
-        private void ChangeNodeTo(Node<TValue> node)
+        private void ChangeNodeContentTo(Node<TValue> node)
         {
             Value = node.Value;
             Connections = node.Connections;
         }
-        
-        public Node<TValue>? GetNode(TValue? value, Func<TValue?, Node<TValue>, Node<TValue>?> search)
+
+        public Node<TValue>? GetNode(TValue value, Func<TValue?, Node<TValue>?, int> pickProcedingNodeIndex)
         {
             if (Value != null && Value.Equals(value))
                 return this;
-            else if (Connections.Count(node => node != null) != 0)
-                return search(value, this);
+            else if (Connections.Any())
+            {
+                int procedingNodeIndex = pickProcedingNodeIndex(value, this);
+                return Connections[(int)procedingNodeIndex].GetNode(value, pickProcedingNodeIndex);
+            }
             else
                 return null;
         }
 
-        public void RemoveNode(TValue value, Func<Node<TValue>, Node<TValue>, int?> pickReplacementIndex,
-            Func<TValue?, Node<TValue>, Node<TValue>?> search)
+        public void ReplaceOrDeleteNode(TValue value, Func<Node<TValue>, Node<TValue>?> pickReplacement,
+            Func<TValue?, Node<TValue>?, int> pickProcedingNodeIndex)
         {
-            Node<TValue>? nodeToRemove = GetNode(value, search);
+            Node<TValue>? nodeToRemove = GetNode(value, pickProcedingNodeIndex);
             if (nodeToRemove != null)
             {
-                var replacementNodeIndex = pickReplacementIndex(nodeToRemove, this);
-                if (replacementNodeIndex != null)
-                {
-                    var replacementNode = nodeToRemove.Connections[(int)replacementNodeIndex];
-                    if (replacementNode != null)
+                var replacementNode = pickReplacement(nodeToRemove);
+                if (replacementNode != null)
+                { 
+                    var replacementNodeConnectionsToCopy = replacementNode.Connections;
+                    for (int i = 0; i < replacementNodeConnectionsToCopy.Count; i++)
                     {
-                        var nodeToRemoveConnectionsToCopy =
-                            nodeToRemove.Connections.Where(x => x != replacementNode).ToList();
-                        replacementNode.Connections.AddRange(nodeToRemoveConnectionsToCopy);
-                        replacementNode.Connections =
-                            replacementNode.Connections.Distinct().ToList(); //distinct uses default 
-                        replacementNode.Connections.Remove(nodeToRemove);
-                        // nodeToRemove.ChangeNodeTo(replacementNode!);
-                        nodeToRemove = replacementNode; //?????????????????????
+                        replacementNodeConnectionsToCopy[i].Connections.Remove(replacementNode);
+                        replacementNodeConnectionsToCopy[i].Connections.Add(nodeToRemove);
                     }
-                    else throw new ArgumentNullException();
+
+                    nodeToRemove.Connections.AddRange(replacementNodeConnectionsToCopy);
+                    nodeToRemove.Connections =
+                        nodeToRemove.Connections.Distinct().ToList(); //distinct uses default 
+
+                    nodeToRemove.Connections.Remove(replacementNode);
+                    nodeToRemove.Connections.Remove(nodeToRemove);
+                    nodeToRemove.Value = replacementNode.Value;
+
                 }
                 else
                 {
-                    for (int i = 0; i < nodeToRemove.Connections.Count(); i++)
-                    {
-                        if (nodeToRemove.Connections[i] != null)
-                            nodeToRemove!.Connections[i]!.Connections.Remove(nodeToRemove);
-                    }
+                    DeleteNode(nodeToRemove);
                 }
             }
         }
 
+        public void DeleteNode(Node<TValue> nodeToRemove)
+        {
+            for (int i = 0; i < nodeToRemove.Connections.Count(); i++)
+            {
+                nodeToRemove!.Connections[i]!.Connections.Remove(nodeToRemove);
+            }
+        }
         #endregion
     }
 }
-        // private void ChangeConnection(Node<TValue>? oldNode, Node<TValue>? newNode)
-        // {
-        //     if (Connections == null) throw new ArgumentNullException();
-        //     for (int i = 0; i < Connections?.Count; i++)
-        //     {
-        //         if (Connections[i] == oldNode)
-        //             Connections[i] = newNode;
-        //     }
-        // }
+// private void ChangeConnection(Node<TValue>? oldNode, Node<TValue>? newNode)
+// {
+//     if (Connections == null) throw new ArgumentNullException();
+//     for (int i = 0; i < Connections?.Count; i++)
+//     {
+//         if (Connections[i] == oldNode)
+//             Connections[i] = newNode;
+//     }
+// }
