@@ -11,29 +11,27 @@ class Program
             { 5, null, 8 }
         };
 
-        List<(State init, long counter, long savedStates, int savedStatesInMemory)> run =
-            new List<(State, long, long, int)>(20);
-        StatePrinter printer=new StatePrinter(new State(0).ToString());
+        List<(State init, long counter, long deadEnd, long savedStates, int savedStatesInMemory)> run =
+            new List<(State, long, long, long, int)>(2);
+        StatePrinter printer = new StatePrinter(new State(0).ToString());
         for (int i = 0; i < run.Capacity; i++)
         {
             Console.WriteLine($"Iteration: {i + 1}");
-           
-            var initialState = new State(0, null);
-            var result = Algorithms.LDFS(initialState, 7, printer.PrintStates);
-            //var result = Algorithms.AStar(initialState, printer.PrintStates);
-            run.Add((initialState, result.Item1, result.Item2, result.Item3)!);
 
-            Console.WriteLine($"-----------------------------------------------------------------------------------------");
-            if (result.Item1 == 0)
-                Console.WriteLine($"Solution couldn`t be found");
-            else
-            {
-                Console.WriteLine($"Amount of steps to find the solution: {run[i].counter}\n" +
-                              $"Amount of failed solution searches: {0}\n" +
+            // var initialState = State.GenerateEasySolvableState();
+            // var result = Algorithms.LDFS(initialState, 7, printer.PrintStates);
+            var initialState = new State(0, null);
+            var result = Algorithms.AStar(initialState, printer.PrintStates);
+            run.Add((initialState, result.Item1, result.Item2, result.Item3, result.Item4)!);
+
+            Console.WriteLine(
+                $"-----------------------------------------------------------------------------------------");
+            Console.WriteLine($"Amount of steps to find the solution: {run[i].counter}\n" +
+                              $"Amount of dead ends: {run[i].deadEnd}\n" +
                               $"Amount of states: {run[i].savedStates}\n" +
                               $"Amount of states saved in memory: {run[i].savedStatesInMemory}");
-            }
-            Console.WriteLine($"-----------------------------------------------------------------------------------------");
+            Console.WriteLine(
+                $"-----------------------------------------------------------------------------------------");
         }
 
 

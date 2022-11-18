@@ -6,7 +6,7 @@ namespace Lab2;
 
 public static class Algorithms
 {
-    public static (long, long, int) LDFS(State start, int depthConstraint, Action<State, int, int> printer)
+    public static (long, long ,long, int) LDFS(State start, int depthConstraint, Action<State, int, int> printer)
     {
         bool solutionFound = false;
         long stepCounter = 0;
@@ -28,20 +28,21 @@ public static class Algorithms
                 statesAmount += proceedingStates.Count;
                 foreach (var state in proceedingStates)
                 {
-                    if (state.IsSolution()) solutionFound = true;
+                    if (state.IsSolution()){solutionFound = true;}
 
                     stack.Push(state);
                 }
             }
         }
-        return ( stepCounter, statesAmount, stack.Count);
+        return ( stepCounter ,solutionFound? 0:1, statesAmount, stack.Count);
     }
 
-    public static (long, long, int) AStar(State start, Action<State, int, int> printer)
+    public static (long, long, long, int) AStar(State start, Action<State, int, int> printer)
     {
         bool isSolvable = !Convert.ToBoolean(inversionCount(Program.squishArr(start.Map)) % 2);
         bool solutionFound = false;
         long stepCounter = 0;
+        long deadEndCounter = isSolvable?0:1;
         long statesAmount = 1;
         (int y, int x) cursorCoord = (Console.CursorTop, Console.CursorLeft);
 
@@ -66,12 +67,13 @@ public static class Algorithms
                     lowPriorityQuee.Add(state);
                     statesAmount++;
                 }
+                else deadEndCounter++;
             }
 
             start = vertex;
         }
-
-        return (stepCounter, statesAmount, lowPriorityQuee.Count);
+        
+        return (stepCounter, deadEndCounter, statesAmount, lowPriorityQuee.Count);
     }
 
     public static int inversionCount(int?[] arr)

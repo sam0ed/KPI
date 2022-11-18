@@ -5,7 +5,7 @@ namespace Lab2;
 
 public class State
 {
-    public State(int depth, State? parentState=null, int?[,]? map = null, (int, int)? emptyEntryCoord = null)
+    public State(int depth, State? parentState = null, int?[,]? map = null, (int, int)? emptyEntryCoord = null)
     {
         Depth = depth;
         ParentState = parentState;
@@ -46,7 +46,7 @@ public class State
     public State? ParentState { get; set; }
     public int?[,] Map { get; init; }
     public (int y, int x) EmptyEntryCoord { get; init; }
-    public int Depth { get; init; }
+    public int Depth { get; set; }
     public Func<int> Heuristic { get; set; }
     public Func<bool> IsSolution { get; set; }
 
@@ -56,7 +56,7 @@ public class State
         { 4, 5, 6 },
         { 7, 8, null }
     };
-    
+
     public List<State> GetProceedingStates()
     {
         List<State> proceedingStates = new List<State>();
@@ -135,6 +135,7 @@ public class State
 
         return isSolution;
     }
+
     public int AStarHeuristic()
     {
         int score = Depth;
@@ -166,6 +167,22 @@ public class State
 
         if (tileSolutionX == null || tileSolutionY == null) throw new InvalidDataException();
         return Math.Abs(tileMapY - (int)tileSolutionY) + Math.Abs(tileMapX - (int)tileSolutionX);
+    }
+
+    public static State GenerateEasySolvableState()
+    {
+        Random random = new Random();
+        var iterationAmount = 15;
+        State solvable = new State(iterationAmount-1, null, SolvedState);
+        for (int i = 0; i < iterationAmount; i++)
+        {
+            var solvableChildren = solvable.GetProceedingStates();
+            solvable = solvableChildren[random.Next(0, solvableChildren.Count)];
+        }
+
+        solvable.Depth = 0;
+        solvable.ParentState = null;
+        return solvable;
     }
 
     public static bool operator <(State st1, State st2)
