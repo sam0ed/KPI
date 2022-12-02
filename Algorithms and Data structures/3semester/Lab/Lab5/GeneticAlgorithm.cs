@@ -8,9 +8,10 @@ public static class GeneticAlgorithm
     private static int? _endVertexInd;
     public static List<List<int>?>? Generation;
 
-    private const int CrossingOverProhibitedForFirstAmount = 1;
-    private const int CrossingOverProhibitedForLastAmount = 1;
-    private const int CrossingOverMinMiddleVerticesAmount = 1;
+    private const int CrossingOverProhibitedForOpeningGenesAmount = 1;
+    private const int CrossingOverProhibitedForClosingGenesAmount = 1;
+    private const int CrossingOverMinMiddleGenesAmount = 1;
+    private const int MaxMutationAddedGenes = 2;
     private const int MaxInitGenSize = 15;
 
     public static List<int>? Run(int?[,] graph)
@@ -32,14 +33,7 @@ public static class GeneticAlgorithm
             var mutationProbability = Program.Random.Next(0, (int)Math.Pow(10, 6)) / Math.Pow(10, 6);
             if (mutationProbability < 1.0 / child.Count)
             {
-                try
-                {
-                    child = GetMutatedSample(child, graph);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Mutation failed");
-                }
+                child = GetMutatedSample(child, graph);
             }
 
             try
@@ -193,7 +187,8 @@ public static class GeneticAlgorithm
         List<double> sampleSelectionProbability = new(Generation.Count);
         foreach (var sample in Generation)
         {
-            if (sample.Count > CrossingOverProhibitedForFirstAmount + CrossingOverProhibitedForLastAmount)
+            if (sample.Count > CrossingOverProhibitedForOpeningGenesAmount +
+                CrossingOverProhibitedForClosingGenesAmount)
                 sampleSelectionProbability.Add(1.0 / GraphConfig.GetPathCost(sample, graph));
             else
                 sampleSelectionProbability.Add(0);
@@ -242,34 +237,37 @@ public static class GeneticAlgorithm
 
     public static List<int>? GetMutatedSample(List<int> sample, int?[,] graph)
     {
-        var insertionIndicesCount = sample.Count - CrossingOverProhibitedForFirstAmount;
-        var insertionIndicesOptions = Enumerable.Range(CrossingOverProhibitedForFirstAmount,
-            insertionIndicesCount).OrderBy(index => Program.Random.Next(0, insertionIndicesCount)).ToList();
-        var insertionOptions = new List<int>(insertionIndicesCount);
-        int? insertionIndex = null;
-        for (int i = 0; i < insertionIndicesCount; i++)
+        for (int k = 0; k < MaxMutationAddedGenes; k++)
         {
-            var outgoingFromPrev = GraphConfig.GetOutgoingFrom(sample[insertionIndicesOptions[i] - 1], graph);
-            for (int j = 0; j < outgoingFromPrev.Count; j++)
+            var insertionIndicesCount = sample.Count - CrossingOverProhibitedForOpeningGenesAmount;
+            var insertionIndicesOptions = Enumerable.Range(CrossingOverProhibitedForOpeningGenesAmount,
+                insertionIndicesCount).OrderBy(index => Program.Random.Next(0, insertionIndicesCount)).ToList();
+            var insertionOptions = new List<int>(insertionIndicesCount);
+            int? insertionIndex = null;
+            for (int i = 0; i < insertionIndicesCount; i++)
             {
-                if (GraphConfig.GetOutgoingFrom(outgoingFromPrev[j], graph)
-                        .Contains(sample[insertionIndicesOptions[i]]) &&
-                    !sample.Contains(outgoingFromPrev[j]))
+                var outgoingFromPrev = GraphConfig.GetOutgoingFrom(sample[insertionIndicesOptions[i] - 1], graph);
+                for (int j = 0; j < outgoingFromPrev.Count; j++)
                 {
-                    insertionOptions.Add(outgoingFromPrev[j]);
+                    if (GraphConfig.GetOutgoingFrom(outgoingFromPrev[j], graph)
+                            .Contains(sample[insertionIndicesOptions[i]]) &&
+                        !sample.Contains(outgoingFromPrev[j]))
+                    {
+                        insertionOptions.Add(outgoingFromPrev[j]);
+                    }
+                }
+
+                if (insertionOptions.Any())
+                {
+                    insertionIndex = insertionIndicesOptions[i];
+                    i = insertionIndicesCount;
                 }
             }
 
-            if (insertionOptions.Any())
-            {
-                insertionIndex = insertionIndicesOptions[i];
-                i = insertionIndicesCount;
-            }
+            if (insertionIndex != null)
+                sample.Insert(insertionIndex.Value, insertionOptions[Program.Random.Next(0, insertionOptions.Count)]);
+            else Console.WriteLine("Mutation failed at some complexity level");
         }
-
-        if (insertionIndex != null)
-            sample.Insert(insertionIndex.Value, insertionOptions[Program.Random.Next(0, insertionOptions.Count)]);
-        else throw new Exception();
         return sample;
     }
 
