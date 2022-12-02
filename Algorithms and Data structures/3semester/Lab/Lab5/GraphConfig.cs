@@ -2,7 +2,7 @@
 
 public static class GraphConfig
 {
-    public const int VerticesAmount = 300;
+    public const int VerticesAmount = 20;
     public static readonly (int Min, int Max) WeightRange = (5, 150);
     public static readonly (int Min, int Max) VertexPower = (1, 10);
 
@@ -12,28 +12,28 @@ public static class GraphConfig
             throw new ArgumentException("amount of vertices is less then vertex power");
 
         int?[,] graph = new int?[VerticesAmount, VerticesAmount];
-        List<int> Connections = new List<int>();
+        List<int> connections = new List<int>();
 
         for (int row = 0; row < VerticesAmount; row++)
         {
-            Connections.Capacity = Program.random.Next(VertexPower.Min, VertexPower.Max + 1) + 1;
-            Connections.Add(row);
-            for (int col = 0; col < Connections.Capacity - 1; col++)
+            connections.Capacity = Program.Random.Next(VertexPower.Min, VertexPower.Max + 1) + 1;
+            connections.Add(row);
+            for (int col = 0; col < connections.Capacity - 1; col++)
             {
                 int colIndex;
                 do
                 {
-                    colIndex = Program.random.Next(0, VerticesAmount);
-                    if (!Connections.Contains(colIndex))
+                    colIndex = Program.Random.Next(0, VerticesAmount);
+                    if (!connections.Contains(colIndex))
                     {
-                        graph[row, colIndex] = Program.random.Next(WeightRange.Min, WeightRange.Max + 1);
+                        graph[row, colIndex] = Program.Random.Next(WeightRange.Min, WeightRange.Max + 1);
                     }
-                } while (Connections.Contains(colIndex));
+                } while (connections.Contains(colIndex));
 
-                Connections.Add(colIndex);
+                connections.Add(colIndex);
             }
 
-            Connections.Clear();
+            connections.Clear();
         }
 
         return graph;
@@ -120,7 +120,7 @@ public static class GraphConfig
             bool success = false;
             do
             {
-                var rand = Program.random.Next(0, adjacent.Count);
+                var rand = Program.Random.Next(0, adjacent.Count);
                 if (!visited.Contains(adjacent[rand]))
                 {
                     visited.Add(adjacent[rand]);
@@ -140,7 +140,7 @@ public static class GraphConfig
         return path;
     }
 
-    public static int GetPathCost(List<int> path, int?[,] graph)
+    public static int GetPathCost(List<int>? path, int?[,] graph)
     {
         int pathCost = 0;
         for (int i = 0; i < path.Count - 1; i++)

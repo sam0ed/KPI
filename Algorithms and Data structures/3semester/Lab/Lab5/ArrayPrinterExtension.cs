@@ -18,20 +18,22 @@
         public static void Print<T>(this T[,] values)
         {
             int padding = 5;
-            Console.Write(new string(' ',padding));
+            Console.Write(new string(' ', padding));
             for (int i = 0; i < values.GetLength(1); i++)
             {
                 Console.Write(i.ToString().PadLeft(padding));
             }
+
             Console.WriteLine();
-            for (int i = 0; i < values.GetLength(1)+1; i++)
+            for (int i = 0; i < values.GetLength(1) + 1; i++)
             {
                 Console.Write("---".PadLeft(padding));
             }
+
             Console.WriteLine();
             for (int i = 0; i < values.GetLength(0); i++)
             {
-                Console.Write((i.ToString()+"|").PadLeft(padding));
+                Console.Write((i.ToString() + "|").PadLeft(padding));
                 for (int j = 0; j < values.GetLength(1); j++)
                 {
                     if (i == j)

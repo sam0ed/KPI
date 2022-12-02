@@ -22,6 +22,7 @@ public class UnitTest
         Console.WriteLine("Before: ");
         GeneticAlgorithm.Generation[0].Print();
         Console.WriteLine("After: ");
-        GeneticAlgorithm.GetMutatedSample(GeneticAlgorithm.Generation[0],graph);
+        GeneticAlgorithm.GetMutatedSample(GeneticAlgorithm.Generation[0],graph).Print();
     }
 }
+

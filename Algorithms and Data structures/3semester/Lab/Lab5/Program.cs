@@ -2,15 +2,16 @@
 
 static class Program
 {
-    public static readonly Random random = new Random();
+    public static readonly Random Random = new Random();
 
     public static void Main(string[] args)
     {
         var graph = GraphConfig.GetGraph();
-        // graph.Print();
+        graph.Print();
+        
         GeneticAlgorithm.AlgorithmReinit(graph);
-        // UnitTest.RunTesting(graph);
         var shortestPath=GeneticAlgorithm.Run(graph);
-        shortestPath.Print();
+        Console.WriteLine($"Cost of shortest path is: {GraphConfig.GetPathCost(shortestPath, graph)}");
+        Console.ReadLine();
     }
 }
