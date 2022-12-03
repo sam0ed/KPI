@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 
 namespace Lab5;
 
@@ -6,13 +7,29 @@ public static class GeneticAlgorithm
 {
     private static int? _startVertexInd;
     private static int? _endVertexInd;
+    
+    private static int _maxInitGenSize=15;
+    private static int _maxMutationAddedGenes = 2;
+    private static int _parentChromosomesAmount = 2;
+    private static int _minCrossingOverPointsAmount = _parentChromosomesAmount - 1;
+    private static int? _maxCrossingOverPointsAmount;
+    
     public static List<List<int>?>? Generation;
 
     private const int CrossingOverProhibitedForOpeningGenesAmount = 1;
     private const int CrossingOverProhibitedForClosingGenesAmount = 1;
     private const int CrossingOverMinMiddleGenesAmount = 1;
-    private const int MaxMutationAddedGenes = 2;
-    private const int MaxInitGenSize = 15;
+
+
+    private static int? MaxCrossingOverPointsAmount
+    {
+        get { return _maxCrossingOverPointsAmount;}
+        set
+        {
+            if (value < _minCrossingOverPointsAmount) throw new ArgumentOutOfRangeException();
+            _maxCrossingOverPointsAmount = value;
+        }
+    }
 
     public static List<int>? Run(int?[,] graph)
     {
@@ -20,7 +37,7 @@ public static class GeneticAlgorithm
 
         List<int>? optima = Generation.MinBy(sample => GraphConfig.GetPathCost(sample, graph));
         int counter = 0;
-        while (Generation.Distinct().Count() > 1 && GetParents(out var parent0, out var parent1,
+        while (Generation.Distinct().Count() >=_parentChromosomesAmount && GetParents(out var parent0, out var parent1,
                    out var possibleCrossingVertexIndices, graph))
         {
             var child = GetChild(parent0, parent1, possibleCrossingVertexIndices);
@@ -72,7 +89,8 @@ public static class GeneticAlgorithm
     {
         var canSelectParents = true;
         var parentsFound = false;
-        var triedParentIndices = new List<int>(Generation.Count(sample => sample.Count > 2));
+        var triedParentIndices = new List<int>(Generation.Count(sample =>
+            sample.Count > CrossingOverProhibitedForOpeningGenesAmount + CrossingOverProhibitedForClosingGenesAmount));
         do
         {
             var currentParentIndices = GetSelectedIndices(graph);
@@ -136,8 +154,8 @@ public static class GeneticAlgorithm
         if (!GraphConfig.AreConnectedVertices(_startVertexInd.Value, _endVertexInd.Value, graph))
             throw new ArgumentException("Start and end vertices are not connected");
 
-        List<List<int>>? initialGeneration = new List<List<int>>(MaxInitGenSize);
-        for (int i = 0; i < MaxInitGenSize; i++)
+        List<List<int>>? initialGeneration = new List<List<int>>(_maxInitGenSize);
+        for (int i = 0; i < _maxInitGenSize; i++)
         {
             var sampleToBeAdded = GraphConfig.GetRandPath(_startVertexInd.Value, _endVertexInd.Value, graph);
             bool initGenContainsSample = false;
@@ -237,7 +255,7 @@ public static class GeneticAlgorithm
 
     public static List<int>? GetMutatedSample(List<int> sample, int?[,] graph)
     {
-        for (int k = 0; k < MaxMutationAddedGenes; k++)
+        for (int k = 0; k < _maxMutationAddedGenes; k++)
         {
             var insertionIndicesCount = sample.Count - CrossingOverProhibitedForOpeningGenesAmount;
             var insertionIndicesOptions = Enumerable.Range(CrossingOverProhibitedForOpeningGenesAmount,
@@ -268,6 +286,7 @@ public static class GeneticAlgorithm
                 sample.Insert(insertionIndex.Value, insertionOptions[Program.Random.Next(0, insertionOptions.Count)]);
             else Console.WriteLine("Mutation failed at some complexity level");
         }
+
         return sample;
     }
 
