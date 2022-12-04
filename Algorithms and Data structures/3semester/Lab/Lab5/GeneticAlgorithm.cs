@@ -7,13 +7,13 @@ public static class GeneticAlgorithm
 {
     private static int? _startVertexInd;
     private static int? _endVertexInd;
-    
-    private static int _maxInitGenSize=15;
+
+    private static int _maxInitGenSize = 15;
     private static int _maxMutationAddedGenes = 2;
     private static int _parentChromosomesAmount = 2;
     private static int _minCrossingOverPointsAmount = _parentChromosomesAmount - 1;
-    private static int? _maxCrossingOverPointsAmount;
-    
+    private static int? _maxCrossingOverPointsAmount = 1;
+
     public static List<List<int>?>? Generation;
 
     private const int CrossingOverProhibitedForOpeningGenesAmount = 1;
@@ -23,7 +23,7 @@ public static class GeneticAlgorithm
 
     private static int? MaxCrossingOverPointsAmount
     {
-        get { return _maxCrossingOverPointsAmount;}
+        get { return _maxCrossingOverPointsAmount; }
         set
         {
             if (value < _minCrossingOverPointsAmount) throw new ArgumentOutOfRangeException();
@@ -37,15 +37,14 @@ public static class GeneticAlgorithm
 
         List<int>? optima = Generation.MinBy(sample => GraphConfig.GetPathCost(sample, graph));
         int counter = 0;
-        while (Generation.Distinct().Count() >=_parentChromosomesAmount && GetParents(out var parent0, out var parent1,
+        while (Generation.Distinct().Count() >= _parentChromosomesAmount && GetParents(out var parents,
                    out var possibleCrossingVertexIndices, graph))
         {
-            var child = GetChild(parent0, parent1, possibleCrossingVertexIndices);
+            var child = GetChild(parents, possibleCrossingVertexIndices);
 
             Console.WriteLine(
                 $"-----------------------------------------------------------------------------------------");
-            if (parent0 != null && parent1 != null) PrintIteration(counter, parent0, parent1, child);
-
+            PrintIteration(counter, parents, child, graph);
 
             var mutationProbability = Program.Random.Next(0, (int)Math.Pow(10, 6)) / Math.Pow(10, 6);
             if (mutationProbability < 1.0 / child.Count)
@@ -73,7 +72,7 @@ public static class GeneticAlgorithm
             Generation.Remove(Generation.MaxBy(sample => GraphConfig.GetPathCost(sample, graph)));
             optima = Generation.MinBy(sample => GraphConfig.GetPathCost(sample, graph));
 
-            Console.WriteLine("Optimal solution: ");
+            Console.WriteLine($"Optimal solution with cost {GraphConfig.GetPathCost(optima, graph)}: ");
             optima.Print();
             Console.WriteLine(
                 $"-----------------------------------------------------------------------------------------");
@@ -84,7 +83,7 @@ public static class GeneticAlgorithm
         return optima;
     }
 
-    public static bool GetParents(out List<int>? parent0, out List<int>? parent1,
+    public static bool GetParents(out List<List<int>> parents,
         out List<int> possibleCrossingVertexIndices, int?[,] graph)
     {
         var canSelectParents = true;
@@ -94,16 +93,26 @@ public static class GeneticAlgorithm
         do
         {
             var currentParentIndices = GetSelectedIndices(graph);
-            parent0 = Generation[currentParentIndices[0]];
-            parent1 = Generation[currentParentIndices[1]];
-            possibleCrossingVertexIndices =
-                parent0.Intersect(parent1).Except(new List<int>() { parent0[0], parent0[^1] })
-                    .ToList();
+            if (_parentChromosomesAmount != currentParentIndices.Count) throw new Exception();
+            //check if linq is working as expected
+            int counter = 0;
+            parents = Generation.Where(sample => currentParentIndices.Contains(counter++)).ToList();
+            //
+            IEnumerable<int> temp = parents[0];
+            for (int i = 1; i < _parentChromosomesAmount; i++)
+            {
+                temp = temp.Intersect(parents[i]);
+            }
 
-            if (possibleCrossingVertexIndices.Any())
+            possibleCrossingVertexIndices = temp.Except(new List<int>()
+            {
+                parents.First()[CrossingOverProhibitedForOpeningGenesAmount - 1],
+                parents.First()[^CrossingOverProhibitedForClosingGenesAmount]
+            }).ToList();
+
+            if (possibleCrossingVertexIndices.Count() >= _minCrossingOverPointsAmount)
                 parentsFound = true;
-            if (triedParentIndices.Contains(currentParentIndices[0]) &&
-                triedParentIndices.Contains(currentParentIndices[1]))
+            if (currentParentIndices.All(index => triedParentIndices.Contains(index))) //something strange going on here
                 canSelectParents = false;
             triedParentIndices.AddRange(currentParentIndices);
         } while (!parentsFound && canSelectParents);
@@ -111,24 +120,53 @@ public static class GeneticAlgorithm
         return canSelectParents;
     }
 
-    public static List<int>? GetChild(List<int>? parent0, List<int>? parent1, List<int> possibleCrossingVertexIndices)
+    public static List<int>? GetChild(List<List<int>> parents, List<int> possibleCrossingVertexIndices)
     {
-        List<int> triedCrossingVertexIndices = new List<int>();
-        List<int>? child = null;
-        while (child == null)
+        //aaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        if (possibleCrossingVertexIndices.Count < _minCrossingOverPointsAmount) throw new Exception();
+        var possibleCrossingVertexIndicesAsLists =
+            possibleCrossingVertexIndices.Select(x => new List<int>() { x }).ToList();
+        List<List<int>> possibleCrossingVertexSets = new List<List<int>>();
+        for (int i = _minCrossingOverPointsAmount; i <= _maxCrossingOverPointsAmount.Value; i++)
         {
-            try
+            IEnumerable<List<int>> allPossibleSetsOfSizeI = possibleCrossingVertexIndicesAsLists;
+            for (int j = 0; j < i - 1; j++)
             {
-                triedCrossingVertexIndices.Add(Program.Random.Next(0, possibleCrossingVertexIndices.Count));
-                child = GetCrossingOver(possibleCrossingVertexIndices[triedCrossingVertexIndices.Last()], parent0,
-                    parent1);
+                allPossibleSetsOfSizeI = allPossibleSetsOfSizeI.SelectMany(y => possibleCrossingVertexIndicesAsLists,
+                    (y, x) => y.Concat(x).ToList());
             }
-            catch (ArgumentException ex)
-            {
-                Console.WriteLine(
-                    $"CrossingOver failed for crossing vertex: {possibleCrossingVertexIndices[triedCrossingVertexIndices.Last()]}");
-            }
+                // IEnumerable<List<int>> temp = new List<List<int>>();
+            //     for (int k = 0; k < allPossibleSetsOfSizeI.Count(); k++)
+            //     {
+            //         for (int l = 0; l < possibleCrossingVertexIndices.Count; l++)
+            //         {
+            //             if(k!=l)
+            //                 temp.Append(allPossibleSetsOfSizeI[k].Concat(possibleCrossingVertexIndicesAsLists[l]));
+            //         }
+            //     }
+            //
+            //     allPossibleSetsOfSizeI = temp.ToList();
+
+            allPossibleSetsOfSizeI = allPossibleSetsOfSizeI.Where(set => set.Distinct().Count() == set.Count);
+            possibleCrossingVertexSets.AddRange(allPossibleSetsOfSizeI);
         }
+
+        possibleCrossingVertexSets.Reverse();
+        List<int>? child = null;
+        for (int i = 0; i < possibleCrossingVertexSets.Count && child == null; i++)
+        {
+            child = GetCrossingOver(possibleCrossingVertexSets[i], parents);
+        }
+
+        if (child == null)
+        {
+            Console.WriteLine(
+                $"CrossingOver failed with:" +
+                $"minCrossingVertexAmount-{_minCrossingOverPointsAmount}" +
+                $"maxCrossingVertexAmount-{_maxCrossingOverPointsAmount}" +
+                $"crossing vertices: ");
+        }
+
 
         return child;
     }
@@ -173,7 +211,7 @@ public static class GeneticAlgorithm
 
     public static List<int> GetSelectedIndices(int?[,] graph)
     {
-        List<int> parents = new List<int>(2);
+        List<int> parents = new List<int>(_parentChromosomesAmount);
         var selectionProbabilities = GetSelectionProbabilities(graph);
         while (parents.Count != parents.Capacity)
         {
@@ -194,7 +232,7 @@ public static class GeneticAlgorithm
             }
         }
 
-        if (parents.Count > 2) throw new Exception();
+        if (parents.Count > _parentChromosomesAmount) throw new Exception();
         return parents;
     }
 
@@ -223,34 +261,51 @@ public static class GeneticAlgorithm
         return sampleSelectionProbability;
     }
 
-    public static List<int> GetCrossingOver(int crossingVertex, params List<int>[] parents) //balanced crossingover
+    public static List<int>
+        GetCrossingOver(List<int> crossingVertices, List<List<int>> parents) //balanced crossingover
     {
-        if (parents.Length > 2) throw new ArgumentException("more then 2 parents passed");
-        if (parents.Count(parent => !parent.Contains(crossingVertex)) != 0)
+        if (crossingVertices.Count < _minCrossingOverPointsAmount)
+            throw new ArgumentException("less crossing vertices then needed were passed");
+        if (!parents.All(parent => crossingVertices.All(vertex => parent.Contains(vertex))))
             throw new ArgumentException("parents dont contain crossing vertex");
 
-        List<List<int>> firstParts = new List<List<int>>(parents.Length);
-        List<List<int>> secondParts = new List<List<int>>(parents.Length);
-        for (int i = 0; i < parents.Length; i++)
+        crossingVertices.Insert(0, parents[0].First());
+        crossingVertices.Insert(crossingVertices.Count, parents[0].Last());
+        List<List<List<int>>> splittedParts = new List<List<List<int>>>(crossingVertices.Count - 1);
+        for (int i = 0; i < crossingVertices.Count - 1; i++)
         {
-            firstParts.Add(parents[i].Take(parents[i].IndexOf(crossingVertex)).ToList());
-            secondParts.Add(parents[i].Skip(parents[i].IndexOf(crossingVertex)).ToList());
-        }
-
-        List<List<int>> possibleChildren = new List<List<int>>();
-        for (int i = 0; i < firstParts.Count; i++)
-        {
-            for (int j = 0; j < secondParts.Count; j++)
+            splittedParts.Add(new List<List<int>>());
+            for (int j = 0; j < parents.Count; j++)
             {
-                if (!firstParts[i].Intersect(secondParts[j]).Any() && i != j)
-                {
-                    possibleChildren.Add(firstParts[i].Concat(secondParts[j]).ToList());
-                }
+                int skipInd = parents[j].IndexOf(crossingVertices[i]);
+                int takeInd = parents[j].IndexOf(crossingVertices[i + 1]);
+                splittedParts[i].Add(parents[j].Skip(skipInd).Take(takeInd - skipInd).ToList());
             }
         }
 
+        List<List<int>> possibleChildren = splittedParts[0];
+        for (int i = 1; i < splittedParts.Count; i++)
+        {
+            List<List<int>> allPossibleCombinationOfIParts = new List<List<int>>();
+            for (int j = 0; j < possibleChildren.Count; j++)
+            {
+                for (int k = 0; k < splittedParts[i].Count; k++)
+                {
+                    if (k != j)
+                        allPossibleCombinationOfIParts.Add(possibleChildren[j].Concat(splittedParts[i][k]).ToList());
+                }
+            }
+
+            possibleChildren = allPossibleCombinationOfIParts;
+        }
+
+        Console.Write('a');
+        possibleChildren = possibleChildren.Distinct().ToList();
+
         if (!possibleChildren.Any()) throw new ArgumentException("Cant perform crossing over for given parents");
-        return possibleChildren[Program.Random.Next(0, possibleChildren.Count)];
+        int returnIndex = Program.Random.Next(0, possibleChildren.Count());
+        possibleChildren[returnIndex].Add(parents.Last().Last());
+        return possibleChildren[returnIndex];
     }
 
     public static List<int>? GetMutatedSample(List<int> sample, int?[,] graph)
@@ -318,14 +373,16 @@ public static class GeneticAlgorithm
         return sample.Except(nodesToRemove).ToList();
     }
 
-    public static void PrintIteration(int counter, List<int> parent0, List<int> parent1, List<int> child)
+    public static void PrintIteration(int counter, List<List<int>> parents, List<int> child,int?[,] graph )
     {
         Console.WriteLine($"Iteration {counter}:\n");
-        Console.WriteLine("Parent 0: ");
-        parent0.Print();
-        Console.WriteLine("Parent 1: ");
-        parent1.Print();
-        Console.WriteLine("Child: ");
+        for (int i = 0; i < parents.Count; i++)
+        {
+            Console.WriteLine($"Parent {i} with cost {GraphConfig.GetPathCost(parents[i], graph)}: ");
+            parents[i].Print();
+        }
+
+        Console.WriteLine($"Child with cost {GraphConfig.GetPathCost(child, graph)}: ");
         child.Print();
     }
 }
