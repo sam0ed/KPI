@@ -11,8 +11,7 @@ public static class GeneticAlgorithm
     private const int CrossingOverProhibitedForOpeningGenesAmount = 1;
     private const int CrossingOverProhibitedForClosingGenesAmount = 1;
     private const int CrossingOverMinMiddleGenesAmount = 1;
-    public static int MaxMutationAddedGenes=2;
-    public static double MutationProbability=1.0/100.0;
+    private const int MaxMutationAddedGenes = 2;
     private const int MaxInitGenSize = 15;
 
     public static List<int>? Run(int?[,] graph)
@@ -32,7 +31,7 @@ public static class GeneticAlgorithm
 
 
             var mutationProbability = Program.Random.Next(0, (int)Math.Pow(10, 6)) / Math.Pow(10, 6);
-            if (mutationProbability < MutationProbability)
+            if (mutationProbability < 1.0 / child.Count)
             {
                 child = GetMutatedSample(child, graph);
             }
