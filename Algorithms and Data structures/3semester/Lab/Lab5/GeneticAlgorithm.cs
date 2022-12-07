@@ -8,8 +8,12 @@ public static class GeneticAlgorithm
     private static int? _startVertexInd;
     private static int? _endVertexInd;
 
-    private static int _maxInitGenSize = 15;
-    private static int _maxMutationAddedGenes = 2;
+    //can be parametrized
+    public static int MaxInitGenSize = 15;
+    public static int MaxMutationAddedGenes = 2;
+    public static int MaxImprovementRemovedGenes = 2;
+    public static double MutationProbability = 1 / 100.0;
+    //can be parametrized
     private static int _parentChromosomesAmount = 2;
     private static int _minCrossingOverPointsAmount = _parentChromosomesAmount - 1;
     private static int? _maxCrossingOverPointsAmount = 1;
@@ -31,7 +35,7 @@ public static class GeneticAlgorithm
         }
     }
 
-    public static List<int>? Run(int?[,] graph)
+    public static (List<int>? optima, int counter) Run(int?[,] graph)
     {
         Debug.Assert(Generation != null, nameof(Generation) + " != null");
 
@@ -47,7 +51,7 @@ public static class GeneticAlgorithm
             PrintIteration(counter, parents, child, graph);
 
             var mutationProbability = Program.Random.Next(0, (int)Math.Pow(10, 6)) / Math.Pow(10, 6);
-            if (mutationProbability < 1.0 / child.Count)
+            if (mutationProbability < MutationProbability)
             {
                 child = GetMutatedSample(child, graph);
             }
@@ -58,7 +62,7 @@ public static class GeneticAlgorithm
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Local improvement failed.");
+                // Console.WriteLine("Local improvement failed.");
             }
 
             bool genContainsSample = false;
@@ -80,7 +84,22 @@ public static class GeneticAlgorithm
             counter++;
         }
 
-        return optima;
+        return (optima, counter);
+    }
+    public static void AlgorithmReinit(int?[,] graph)
+    {
+        do
+        {
+            Console.Write("Enter start vertex index (current start vertex is {0}) : ",
+                _startVertexInd == null ? "null" : _startVertexInd);
+            _startVertexInd = Convert.ToInt32(Console.ReadLine());
+            Console.Write($"Enter end vertex index (current end vertex is {_endVertexInd}) : ");
+            _endVertexInd = Convert.ToInt32(Console.ReadLine());
+        } while (!GraphConfig.AreConnectedVertices(_startVertexInd.Value, _endVertexInd.Value, graph) ||
+                 _startVertexInd is < -1 or > GraphConfig.VerticesAmount ||
+                 _endVertexInd is < -1 or > GraphConfig.VerticesAmount);
+
+        Generation = GetInitialGeneration(graph);
     }
 
     public static bool GetParents(out List<List<int>> parents,
@@ -94,10 +113,9 @@ public static class GeneticAlgorithm
         {
             var currentParentIndices = GetSelectedIndices(graph);
             if (_parentChromosomesAmount != currentParentIndices.Count) throw new Exception();
-            //check if linq is working as expected
+            
             int counter = 0;
             parents = Generation.Where(sample => currentParentIndices.Contains(counter++)).ToList();
-            //
             IEnumerable<int> temp = parents[0];
             for (int i = 1; i < _parentChromosomesAmount; i++)
             {
@@ -112,7 +130,7 @@ public static class GeneticAlgorithm
 
             if (possibleCrossingVertexIndices.Count() >= _minCrossingOverPointsAmount)
                 parentsFound = true;
-            if (currentParentIndices.All(index => triedParentIndices.Contains(index))) //something strange going on here
+            if (Enumerable.Range(0,Generation.Count).All(index => triedParentIndices.Contains(index))) 
                 canSelectParents = false;
             triedParentIndices.AddRange(currentParentIndices);
         } while (!parentsFound && canSelectParents);
@@ -122,7 +140,6 @@ public static class GeneticAlgorithm
 
     public static List<int>? GetChild(List<List<int>> parents, List<int> possibleCrossingVertexIndices)
     {
-        //aaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
         if (possibleCrossingVertexIndices.Count < _minCrossingOverPointsAmount) throw new Exception();
         var possibleCrossingVertexIndicesAsLists =
             possibleCrossingVertexIndices.Select(x => new List<int>() { x }).ToList();
@@ -135,17 +152,6 @@ public static class GeneticAlgorithm
                 allPossibleSetsOfSizeI = allPossibleSetsOfSizeI.SelectMany(y => possibleCrossingVertexIndicesAsLists,
                     (y, x) => y.Concat(x).ToList());
             }
-                // IEnumerable<List<int>> temp = new List<List<int>>();
-            //     for (int k = 0; k < allPossibleSetsOfSizeI.Count(); k++)
-            //     {
-            //         for (int l = 0; l < possibleCrossingVertexIndices.Count; l++)
-            //         {
-            //             if(k!=l)
-            //                 temp.Append(allPossibleSetsOfSizeI[k].Concat(possibleCrossingVertexIndicesAsLists[l]));
-            //         }
-            //     }
-            //
-            //     allPossibleSetsOfSizeI = temp.ToList();
 
             allPossibleSetsOfSizeI = allPossibleSetsOfSizeI.Where(set => set.Distinct().Count() == set.Count);
             possibleCrossingVertexSets.AddRange(allPossibleSetsOfSizeI);
@@ -166,34 +172,17 @@ public static class GeneticAlgorithm
                 $"maxCrossingVertexAmount-{_maxCrossingOverPointsAmount}" +
                 $"crossing vertices: ");
         }
-
-
         return child;
     }
 
-    public static void AlgorithmReinit(int?[,] graph)
-    {
-        do
-        {
-            Console.Write("Enter start vertex index (current start vertex is {0}) : ",
-                _startVertexInd == null ? "null" : _startVertexInd);
-            _startVertexInd = Convert.ToInt32(Console.ReadLine());
-            Console.Write($"Enter end vertex index (current end vertex is {_endVertexInd}) : ");
-            _endVertexInd = Convert.ToInt32(Console.ReadLine());
-        } while (!GraphConfig.AreConnectedVertices(_startVertexInd.Value, _endVertexInd.Value, graph) ||
-                 _startVertexInd is < -1 or > GraphConfig.VerticesAmount ||
-                 _endVertexInd is < -1 or > GraphConfig.VerticesAmount);
-
-        Generation = GetInitialGeneration(graph);
-    }
 
     public static List<List<int>?>? GetInitialGeneration(int?[,] graph)
     {
         if (!GraphConfig.AreConnectedVertices(_startVertexInd.Value, _endVertexInd.Value, graph))
             throw new ArgumentException("Start and end vertices are not connected");
 
-        List<List<int>>? initialGeneration = new List<List<int>>(_maxInitGenSize);
-        for (int i = 0; i < _maxInitGenSize; i++)
+        List<List<int>>? initialGeneration = new List<List<int>>(MaxInitGenSize);
+        for (int i = 0; i < MaxInitGenSize; i++)
         {
             var sampleToBeAdded = GraphConfig.GetRandPath(_startVertexInd.Value, _endVertexInd.Value, graph);
             bool initGenContainsSample = false;
@@ -298,8 +287,7 @@ public static class GeneticAlgorithm
 
             possibleChildren = allPossibleCombinationOfIParts;
         }
-
-        Console.Write('a');
+        
         possibleChildren = possibleChildren.Distinct().ToList();
 
         if (!possibleChildren.Any()) throw new ArgumentException("Cant perform crossing over for given parents");
@@ -310,7 +298,7 @@ public static class GeneticAlgorithm
 
     public static List<int>? GetMutatedSample(List<int> sample, int?[,] graph)
     {
-        for (int k = 0; k < _maxMutationAddedGenes; k++)
+        for (int k = 0; k < MaxMutationAddedGenes; k++)
         {
             var insertionIndicesCount = sample.Count - CrossingOverProhibitedForOpeningGenesAmount;
             var insertionIndicesOptions = Enumerable.Range(CrossingOverProhibitedForOpeningGenesAmount,
@@ -339,7 +327,7 @@ public static class GeneticAlgorithm
 
             if (insertionIndex != null)
                 sample.Insert(insertionIndex.Value, insertionOptions[Program.Random.Next(0, insertionOptions.Count)]);
-            else Console.WriteLine("Mutation failed at some complexity level");
+            // else Console.WriteLine("Mutation failed at some complexity level");
         }
 
         return sample;
@@ -349,7 +337,7 @@ public static class GeneticAlgorithm
     {
         if (sample.Count() != sample.Distinct().Count()) throw new Exception();
         List<int> nodesToRemove = new List<int>();
-        for (int i = 0; i < sample.Count - 2; i++)
+        for (int i = 0; i < sample.Count - (CrossingOverProhibitedForOpeningGenesAmount+CrossingOverProhibitedForClosingGenesAmount); i++)
         {
             var currentOutgoing = GraphConfig.GetOutgoingFrom(sample[i], graph);
             for (int j = i + 2; j < sample.Count && !nodesToRemove.Any(); j++)
@@ -360,15 +348,16 @@ public static class GeneticAlgorithm
                     var directPath = new List<int>() { sample[i], sample[j] };
                     var transitPathCost = GraphConfig.GetPathCost(transitPath, graph);
                     var directPathCost = GraphConfig.GetPathCost(directPath, graph);
-                    if (directPathCost < transitPathCost)
+                    var temp=transitPath.Except(directPath).ToList();
+                    if (directPathCost < transitPathCost && temp.Count<=MaxImprovementRemovedGenes && temp.Count>nodesToRemove.Count)
                     {
-                        nodesToRemove = transitPath.Except(directPath).ToList();
+                        nodesToRemove = temp;
                     }
                 }
             }
         }
 
-        if (!nodesToRemove.Any()) throw new Exception("Local improvement failed(cant shorten path)");
+        // if (!nodesToRemove.Any()) throw new Exception("Local improvement failed(cant shorten path)");
 
         return sample.Except(nodesToRemove).ToList();
     }
@@ -381,7 +370,7 @@ public static class GeneticAlgorithm
             Console.WriteLine($"Parent {i} with cost {GraphConfig.GetPathCost(parents[i], graph)}: ");
             parents[i].Print();
         }
-
+        
         Console.WriteLine($"Child with cost {GraphConfig.GetPathCost(child, graph)}: ");
         child.Print();
     }
