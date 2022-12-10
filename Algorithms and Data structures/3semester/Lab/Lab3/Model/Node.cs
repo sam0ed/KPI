@@ -19,16 +19,25 @@ public class Node<TK, TP>
 
     public bool IsLeaf
     {
-        get { return this.Children.Count == 0; }
+        get
+        {
+            return this.Children.Count == 0;
+        }
     }
 
     public bool HasReachedMaxEntries
     {
-        get { return this.Entries.Count == (2 * this.degree) - 1; }
+        get
+        {
+            return this.Entries.Count == (2 * this.degree) - 1;
+        }
     }
 
     public bool HasReachedMinEntries
     {
-        get { return this.Entries.Count == this.degree - 1; }
+        get
+        {
+            return this.Entries.Count == this.degree - 1;
+        }
     }
 }

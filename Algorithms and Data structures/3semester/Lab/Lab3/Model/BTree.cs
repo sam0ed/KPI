@@ -4,13 +4,6 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 
-/// <summary>
-/// Based on BTree chapter in "Introduction to Algorithms", by Thomas Cormen, Charles Leiserson, Ronald Rivest.
-/// 
-/// This implementation is not thread-safe, and user must handle thread-safety.
-/// </summary>
-/// <typeparam name="TK">Type of BTree Key.</typeparam>
-/// <typeparam name="TP">Type of BTree Pointer associated with each Key.</typeparam>
 public class BTree<TK, TP> where TK : IComparable<TK>
 {
     public BTree(int degree)
@@ -24,30 +17,51 @@ public class BTree<TK, TP> where TK : IComparable<TK>
         this.Degree = degree;
         this.Height = 1;
     }
-    
+
     public Node<TK, TP> Root { get; private set; }
 
     public int Degree { get; private set; }
 
     public int Height { get; private set; }
     
-    public Entry<TK, TP> Search(TK key)
+    public Entry<TK, TP>? Search(TK key)
     {
         return this.SearchInternal(this.Root, key);
     }
-    
-    private Entry<TK, TP> SearchInternal(Node<TK, TP> node, TK key)
+
+    private Entry<TK, TP>? SearchInternal(Node<TK, TP> node, TK key)
     {
-        int i = node.Entries.TakeWhile(entry => key.CompareTo(entry.Key) > 0).Count();
+        int i = -1;
+        int delta = node.Entries.Count;
+
+        do
+        {
+            delta /= 2;
+            if (i == -1)
+            {
+                i += (delta + 1);
+            }
+            else if(i==node.Entries.Count)
+            {
+                i -= (delta + 1);
+            }
+            else
+            {
+                i = i + key.CompareTo(node.Entries[i].Key) * (delta + 1);
+            }
+        } while (delta != 0);
 
         if (i < node.Entries.Count && node.Entries[i].Key.CompareTo(key) == 0)
         {
             return node.Entries[i];
         }
 
-        return node.IsLeaf ? null : this.SearchInternal(node.Children[i], key);
+        return node.IsLeaf ? null : this.SearchInternal(node.Children[i+1], key);
     }
 
+    
+    
+    
     /// <summary>
     /// Inserts a new key associated with a pointer in the BTree. This
     /// operation splits nodes as required to keep the BTree properties.
@@ -283,7 +297,7 @@ public class BTree<TK, TP> where TK : IComparable<TK>
 
         return this.DeletePredecessor(node.Children.First());
     }
-    
+
 
 
     /// <summary>

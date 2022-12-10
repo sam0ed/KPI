@@ -27,16 +27,16 @@ namespace Lab3
         {
             // InitializeComponent();
             BTree<int,char> tree = new BTree<int, char>(5);
-            var amountOfNodesToInsert = 150;
-            var sequenceToInsert = Enumerable.Range(0, amountOfNodesToInsert).OrderBy(x => Random.Next());
+            var amountOfNodesToInsert = 250;
+            var sequenceToInsert = Enumerable.Range(0, amountOfNodesToInsert).OrderBy(x => Random.Next()).ToList();
             for (int i = 0; i < amountOfNodesToInsert; i++)
             {
-                    tree.Insert(sequenceToInsert.ElementAt(i),(char)Random.Next());
+                    tree.Insert(sequenceToInsert[i],(char)Random.Next());
             }
             
             Console.ReadLine();
 
-            Debug.WriteLine(tree.Search(97).Pointer);
+            Debug.WriteLine(tree.Search(87).Pointer);
 
         }
     }
