@@ -41,24 +41,16 @@ public class BTree<TK, TP> where TK : IComparable<TK>
 
     private Entry<TK, TP>? SearchInternal(Node<TK, TP> node, TK key)
     {
-        int i = -1;
-        int delta = node.Entries.Count;
+        int delta = node.Entries.Count/2;
+        int i = delta;
 
         do
         {
             delta /= 2;
-            if (i == -1)
-            {
-                i += (delta + 1);
-            }
-            else if (i == node.Entries.Count)
-            {
-                i -= (delta + 1);
-            }
-            else
-            {
-                i = i + key.CompareTo(node.Entries[i].Key) * (delta + 1);
-            }
+            int newInd=i + key.CompareTo(node.Entries[i].Key) * (delta + 1);
+            if (i == newInd) delta = 0;
+            if (newInd < node.Entries.Count && newInd > -1)
+                i = newInd;
         } while (delta != 0);
 
         if (i < node.Entries.Count && node.Entries[i].Key.CompareTo(key) == 0)
