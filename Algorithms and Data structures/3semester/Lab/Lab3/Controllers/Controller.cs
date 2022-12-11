@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 using Lab3.Model;
@@ -12,6 +13,8 @@ public class Controller<TK, TP> where TK : IComparable<TK>
     public static readonly Random rand = new Random();
     private const int TreeDegree = 50;
     private const int EntriesToGenerate = 10000;
+    private const int KeyMinValue = 0;
+    private const int KeyMaxValue = 100_000;
     private BTree<TK, TP>? _btree;
 
     public Controller()
@@ -52,20 +55,33 @@ public class Controller<TK, TP> where TK : IComparable<TK>
         // Generate a new Btree instance
         _btree = new BTree<TK, TP>(TreeDegree);
 
-        // Generate 10000 random entries with integer keys and string values
-        
+        // Generate EntriesToGenerate random entries with integer keys and string values
         for (int i = 0; i < EntriesToGenerate; i++)
         {
-            TK key = (TK)Convert.ChangeType(rand.Next(10000), typeof(TK));
+            TK key = (TK)Convert.ChangeType(rand.Next(KeyMinValue, KeyMaxValue), typeof(TK));
             TP value = (TP)Convert.ChangeType("Value " + rand.Next(10000), typeof(TP));
-            _btree.Insert(key, value);
+            try
+            {
+                TryAddEntryOrThrow(new Entry<TK, TP>()
+                {
+                    Key = key,
+                    Pointer = value
+                });
+            }
+            catch (ArgumentException)
+            {
+                i--;
+            }
         }
     }
 
-    public void AddEntry(Entry<TK, TP> entry)
+    public void TryAddEntryOrThrow(Entry<TK, TP> entry)
     {
         // Add the entry to the Btree
-        _btree.Insert(entry.Key, entry.Pointer);
+        if (_btree.Search(entry.Key) is null)
+            _btree.Insert(entry.Key, entry.Pointer);
+        else
+            throw new ArgumentException("Table already contains entry with the given key.");
     }
 
     public Entry<TK, TP>? SearchEntry(TK key)

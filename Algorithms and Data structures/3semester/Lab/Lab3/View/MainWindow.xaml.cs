@@ -74,7 +74,7 @@ public partial class MainWindow : Window
             };
 
             // Add the entry to the Btree
-            controller.AddEntry(entry);
+            controller.TryAddEntryOrThrow(entry);
 
             // Clear the input fields
             KeyInput.Clear();
@@ -84,6 +84,10 @@ public partial class MainWindow : Window
         {
             // Show an error message if the key is not an integer
             MessageBox.Show("Please enter a valid integer for the key.");
+        }
+        catch (ArgumentException exception)
+        {
+            MessageBox.Show(exception.Message);
         }
     }
 
