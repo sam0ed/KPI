@@ -12,7 +12,7 @@ public class Controller<TK, TP> where TK : IComparable<TK>
     public static readonly Random rand = new Random();
     private const int TreeDegree = 50;
     private const int EntriesToGenerate = 10000;
-    private BTree<TK, TP> _btree;
+    private BTree<TK, TP>? _btree;
 
     public Controller()
     {

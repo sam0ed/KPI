@@ -29,6 +29,16 @@
         <Button Grid.Row="1" Grid.Column="2" Margin="5" Name="SearchButton" Click="SearchButton_Click" Content="Search" />
         <Button Grid.Row="2" Grid.Column="2" Margin="5" Name="DeleteButton" Click="DeleteButton_Click" Content="Delete" />
         <Button Grid.Row="3" Grid.Column="2" Margin="5" Name="ModifyButton" Click="ModifyButton_Click" Content="Modify" />
+        
+        <DataGrid Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3"
+                  AutoGenerateColumns="False" Name="EntryTable"
+                  ItemsSource="{Binding Entries}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Key" Binding="{Binding Key}" />
+                <DataGridTextColumn Header="Pointer" Binding="{Binding Pointer}" />
+            </DataGrid.Columns>
+        </DataGrid>
+
     </Grid>
 </Window>
 

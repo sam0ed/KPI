@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -27,10 +29,34 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-
+        
         // Create a new controller instance
         controller = new Controller<int, string>();
+        
+        DataContext = controller;
     }
+    
+    // private void EntryDeserializeTest<TK, TP>() where TK : IComparable<TK>
+    // {
+    //     var node = new Node<TK, TP>(50);
+    //     var entryList = new List<Entry<TK, TP>>();
+    //     var entry = new Entry<TK, TP>()
+    //     {
+    //         Key = (TK) Convert.ChangeType(6, typeof(TK)) ,
+    //         Pointer = (TP) Convert.ChangeType("chpop", typeof(TP))
+    //     };
+    //     entryList.Add(entry);
+    //     node.Entries = entryList;
+    //     string json = JsonSerializer.Serialize(node);
+    //
+    //     // Write the JSON to the Btree file
+    //     File.WriteAllText("entry.json", json);
+    //     
+    //     json = File.ReadAllText("entry.json");
+    //
+    //     // Deserialize the JSON to a Btree instance
+    //     node = JsonSerializer.Deserialize<Node<TK,TP>>(json);
+    // }
 
     private void AddButton_Click(object sender, RoutedEventArgs e)
     {

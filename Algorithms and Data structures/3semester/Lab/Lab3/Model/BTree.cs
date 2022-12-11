@@ -1,4 +1,6 @@
-﻿namespace Lab3.Model;
+﻿using System.Text.Json.Serialization;
+
+namespace Lab3.Model;
 
 using System;
 using System.Diagnostics;
@@ -18,12 +20,20 @@ public class BTree<TK, TP> where TK : IComparable<TK>
         this.Height = 1;
     }
 
+    [JsonConstructor]
+    public BTree(Node<TK, TP> root, int degree, int height)
+    {
+        Root = root;
+        Degree = degree;
+        Height = height;
+    }
+
     public Node<TK, TP> Root { get; private set; }
 
     public int Degree { get; private set; }
 
     public int Height { get; private set; }
-    
+
     public Entry<TK, TP>? Search(TK key)
     {
         return this.SearchInternal(this.Root, key);
@@ -41,7 +51,7 @@ public class BTree<TK, TP> where TK : IComparable<TK>
             {
                 i += (delta + 1);
             }
-            else if(i==node.Entries.Count)
+            else if (i == node.Entries.Count)
             {
                 i -= (delta + 1);
             }
@@ -55,13 +65,17 @@ public class BTree<TK, TP> where TK : IComparable<TK>
         {
             return node.Entries[i];
         }
-
-        return node.IsLeaf ? null : this.SearchInternal(node.Children[i+1], key);
+        else if (i < node.Entries.Count && node.Entries[i].Key.CompareTo(key) > 0)
+        {
+            return node.IsLeaf ? null : this.SearchInternal(node.Children[i], key);
+        }
+        else
+        {
+            return node.IsLeaf ? null : this.SearchInternal(node.Children[i + 1], key);
+        }
     }
 
-    
-    
-    
+
     /// <summary>
     /// Inserts a new key associated with a pointer in the BTree. This
     /// operation splits nodes as required to keep the BTree properties.
@@ -297,7 +311,6 @@ public class BTree<TK, TP> where TK : IComparable<TK>
 
         return this.DeletePredecessor(node.Children.First());
     }
-
 
 
     /// <summary>

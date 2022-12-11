@@ -1,16 +1,23 @@
-﻿namespace Lab3.Model;
+﻿using System.Text.Json.Serialization;
+
+namespace Lab3.Model;
 
 using System.Collections.Generic;
 
 public class Node<TK, TP>
 {
-    private int degree;
+    private readonly int _degree;
 
     public Node(int degree)
     {
-        this.degree = degree;
+        this._degree = degree;
         this.Children = new List<Node<TK, TP>>(degree);
         this.Entries = new List<Entry<TK, TP>>(degree);
+    }
+
+    [JsonConstructor]
+    public Node()
+    {
     }
 
     public List<Node<TK, TP>> Children { get; set; }
@@ -19,25 +26,25 @@ public class Node<TK, TP>
 
     public bool IsLeaf
     {
-        get
+        get { return this.Children.Count == 0; }
+        set
         {
-            return this.Children.Count == 0;
         }
     }
 
     public bool HasReachedMaxEntries
     {
-        get
+        get { return this.Entries.Count == (2 * this._degree) - 1; }
+        set
         {
-            return this.Entries.Count == (2 * this.degree) - 1;
         }
     }
 
     public bool HasReachedMinEntries
     {
-        get
+        get { return this.Entries.Count == this._degree - 1; }
+        set
         {
-            return this.Entries.Count == this.degree - 1;
         }
     }
 }
