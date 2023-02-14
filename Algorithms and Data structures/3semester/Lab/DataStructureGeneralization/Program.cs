@@ -1,9 +1,10 @@
-﻿using Lab2;
+﻿using DataStructure;
+using Lab2;
 
 var parentNode = new Node<int>( 8);
 var random = new Random();
 
-NodeStructureSpecifics<int> decisionTree = new BinaryTree<int>();
+var decisionTree = new BinaryTree<int>();
 Node<int> insertedNode;
 for (int i = 1; i < 20; i++)
 {

@@ -1,6 +1,6 @@
-﻿using Lab6;
+﻿using Lab2;
 
-namespace Lab2;
+namespace DataStructure;
 
 internal class BinaryTree<TValue> : NodeStructureSpecifics<TValue> where TValue : IComparable<TValue>, IEquatable<TValue>
 {

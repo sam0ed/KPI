@@ -94,8 +94,8 @@
 
             switch (Type)
             {
-                case AntType.Ordinary: return (double)(Config.Lmin!) / Lk;
-                case AntType.FeromoneElite: return 2*(double)(Config.Lmin!) / Lk;
+                case AntType.Ordinary: return (double)(Config.Lmin) / Lk;
+                case AntType.FeromoneElite: return 2*(double)(Config.Lmin) / Lk;
                 default: throw new Exception("Ant type is not specified, cant determine Feromones");
             }
 
