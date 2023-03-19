@@ -32,3 +32,11 @@ class EnvManager:
     def set_up_os(self):
         if not os.path.exists(self.path_to_extracted):
             os.makedirs(self.path_to_extracted)
+
+    # def save_dataframe(self,df):
+    #     file_name = None
+    #     for name, value in locals().items():
+    #         if id(value) == id(df):
+    #             file_name = name
+    #             break
+    #     df.to_csv(f'{self.path_to_extracted}/{file_name}.csv', index=False)
