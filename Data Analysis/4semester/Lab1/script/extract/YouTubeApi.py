@@ -1,4 +1,4 @@
-from ConfigProgram import ConfigProgram
+from .ExtractConfig import ExtractConfig
 from googleapiclient.discovery import build
 import pandas as pd
 
@@ -15,7 +15,7 @@ class YouTubeApi:
 
         while count>0:
             results = self.resource.commentThreads().list(
-                part=[part for i, part in enumerate(ConfigProgram.available_comment_part_values) if i in ConfigProgram.comment_part_indexes],
+                part=[part for i, part in enumerate(ExtractConfig.available_comment_part_values) if i in ExtractConfig.comment_part_indexes],
                 videoId=video_id,
                 maxResults=count,
                 pageToken=next_page_token
@@ -58,7 +58,7 @@ class YouTubeApi:
             ).execute()
         video_ids = [video['id']['videoId'] for video in search_results['items']]
         video_stats = self.resource.videos().list(
-                            part= [part for i, part in enumerate(ConfigProgram.available_video_part_values) if i in ConfigProgram.video_part_indexes],
+                            part= [part for i, part in enumerate(ExtractConfig.available_video_part_values) if i in ExtractConfig.video_part_indexes],
                             id=','.join(video_ids),
                             maxResults=count
                         ).execute()
@@ -79,6 +79,5 @@ class YouTubeApi:
             
             rows.append(row)
         
-        videos_df = pd.concat([videos_df, pd.DataFrame(rows)])           
-        
+        videos_df = pd.concat([videos_df, pd.DataFrame(rows)])          
         return videos_df

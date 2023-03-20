@@ -1,7 +1,6 @@
-import json
-import utils
 from googleapiclient.discovery import build
-from ConfigProgram import ConfigProgram
+from .ExtractConfig import ExtractConfig as config
+from .utils import *
 
 class YouTubeApiUtils:
     def __init__(self, api_key:str) -> None:
@@ -15,16 +14,16 @@ class YouTubeApiUtils:
         self._RESOURCE=build('youtube', 'v3', developerKey=api_key)
         
     def print_available_comment_attr_names(self):
-        utils.print_json_attr_names(self._RESOURCE.commentThreads().list(
-            part=[value for i, value in enumerate(ConfigProgram.available_comment_part_values) if i in ConfigProgram.comment_part_indexes],
+        print_json_attr_names(self._RESOURCE.commentThreads().list(
+            part=[value for i, value in enumerate(config.available_comment_part_values) if i in config.comment_part_indexes],
             videoId=self._DUMMY_VIDEO_ID,
             maxResults=self._MAX_RESULTS,
             pageToken=self._DUMMY_PAGE_TOKEN
         ).execute())
 
     def get_available_comment_attr_names(self):
-        return utils.get_json_attr_names(self._RESOURCE.commentThreads().list(
-            part=[value for i, value in enumerate(ConfigProgram.available_comment_part_values) if i in ConfigProgram.comment_part_indexes],
+        return get_json_attr_names(self._RESOURCE.commentThreads().list(
+            part=[value for i, value in enumerate(config.available_comment_part_values) if i in config.comment_part_indexes],
             videoId=self._DUMMY_VIDEO_ID,
             maxResults=self._MAX_RESULTS,
             pageToken=self._DUMMY_PAGE_TOKEN
@@ -49,8 +48,8 @@ class YouTubeApiUtils:
         video_ids = self._get_videos_ids_by_channel()
 
         # Make another API request to get video statistics
-        utils.print_json_attr_names(self._RESOURCE.videos().list(
-            part=[value for i, value in enumerate(ConfigProgram.available_video_part_values) if i in ConfigProgram.video_part_indexes],
+        print_json_attr_names(self._RESOURCE.videos().list(
+            part=[value for i, value in enumerate(config.available_video_part_values) if i in config.video_part_indexes],
             id=','.join(video_ids),
             maxResults=self._MAX_RESULTS
         ).execute())
@@ -60,8 +59,8 @@ class YouTubeApiUtils:
         video_ids = self._get_videos_ids_by_channel()
 
         # Make another API request to get video statistics
-        return utils.get_json_attr_names(self._RESOURCE.videos().list(
-            part=[value for i, value in enumerate(ConfigProgram.available_video_part_values) if i in ConfigProgram.video_part_indexes],
+        return get_json_attr_names(self._RESOURCE.videos().list(
+            part=[value for i, value in enumerate(config.available_video_part_values) if i in config.video_part_indexes],
             id=','.join(video_ids),
             maxResults=self._MAX_RESULTS
         ).execute())

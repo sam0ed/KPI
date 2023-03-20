@@ -1,8 +1,6 @@
-from typing import List
-
 
 def print_json_attr_names(data):
-    json_attribute_names:List[str]=get_json_attr_names(data)
+    json_attribute_names:list[str]=get_json_attr_names(data)
     for i, name in enumerate(json_attribute_names):
         print(f'{i} '+name)
 
