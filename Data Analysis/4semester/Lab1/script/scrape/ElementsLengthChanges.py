@@ -1,3 +1,6 @@
+from script.scrape.ScraperConfig import ScraperConfig
+
+
 class ElementsLengthChanges(object):
     def __init__(self, selector):
         self.selector = selector
@@ -7,7 +10,7 @@ class ElementsLengthChanges(object):
     def __call__(self, driver):
         self.driver = driver
         self.set_initial_length()
-        return (self.count_elements() > self.initial_length and self.count_elements()<100)
+        return (self.count_elements() > self.initial_length and self.count_elements()<ScraperConfig.max_videos)
 
     def set_initial_length(self):
         if self.initial_length is None:

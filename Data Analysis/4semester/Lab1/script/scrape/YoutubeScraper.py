@@ -19,16 +19,19 @@ def extract_video_id(url):
     return parse_qs(parsed.query)['v'][0]
 
 class YoutubeScraper:
-    def __init__(self, channel_url, stop_id=None, max_videos=None, proxy_ip=None):
-        self.channel_url = channel_url
-        self.browser = BrowserManager.build_browser(enable_ui=False, proxy_ip=proxy_ip)
-        self.stop_id = stop_id
+    def __init__(self, max_videos=None):
+        self.channel_url = None
+        self.proxy_ip = None
+        self.browser = None
         self.max_videos = max_videos
 
     def scrape_video_data(self):
         print(self.channel_url)
 
-        self.navigate_to_videos()
+        try:
+            self.navigate_to_videos()
+        except:
+            return
         self.load_all_pages()
 
         print("Extracting video urls...")
@@ -37,9 +40,12 @@ class YoutubeScraper:
         scraped_videos = []
         for url in video_urls:
             print(url)
-
             self.navigate_to_video(url)
-            scraped_videos.append(self.extract_video_attributes(url))
+            # time.sleep(random.randint(1, 3))
+            try:
+                scraped_videos.append(self.extract_video_attributes(url))
+            except:
+                print("Failed to extract video attributes, skipping...")
 
         # return scraped_videos
         return scraped_videos
@@ -47,35 +53,33 @@ class YoutubeScraper:
     def extract_video_urls(self):
         urls = []
 
-        video_elements=self.find_video_elements()
-        for element in video_elements:
+        for element in self.find_video_elements():
             url=element.get_attribute('href')
-            if self.max_videos<len(urls):
-                break
-
             urls.append(url)
+            if self.max_videos<=len(urls):
+                break
 
         return urls
 
     def extract_video_attributes(self, url):
         pause_button=self.browser.find_element_by_css_selector(ScraperConfig.PAUSE_BUTTON_SELECTOR)
-        time.sleep(random.randint(0,2))
+        time.sleep(random.randint(1,3))
         pause_button.click()
-        add_elements= self.browser.find_elements_by_css_selector(ScraperConfig.MONETIZED_SELECTOR)
-        time.sleep(random.randint(0, 2))
-        monetization_status=bool(add_elements)
-        pause_button.click()
-
+        # add_elements= self.browser.find_elements_by_css_selector(ScraperConfig.MONETIZED_SELECTOR)
+        # time.sleep(random.randint(1, 3))
+        # monetization_status=bool(add_elements)
+        # pause_button.click()
+        time.sleep(random.randint(1, 2))
         self.browser.find_element_by_css_selector(ScraperConfig.DESCRIPTION_SELECTOR).click()
-        time.sleep(random.randint(0, 1))
+        time.sleep(random.randint(1, 2))
         published_date = self.browser.find_element_by_css_selector(ScraperConfig.PUBLISHED_DATE_SELECTOR).text
-
-        video_id = extract_video_id(url)
+        #
+        # self.perform_random_mouse_action()
 
         return {
-            "id": video_id,
-            "published_date": published_date,
-            "monetization_status": monetization_status
+            "id": extract_video_id(url),
+            "published_date": published_date
+            # "monetization_status": monetization_status
         }
 
     def count_video_elements(self):
@@ -88,10 +92,20 @@ class YoutubeScraper:
         videos_url = f'{self.channel_url}/videos'
         self.browser.get(videos_url)
         self.accept_cookies()
+        # WebDriverWait(self.browser, 10).until(
+        #     EC.presence_of_element_located((By.CSS_SELECTOR, ScraperConfig.MOST_POPULAR_VIDEOS_SELECTOR))
+        # )
+        time.sleep(random.randint(1, 3))
         self.browser.find_element_by_css_selector(ScraperConfig.MOST_POPULAR_VIDEOS_SELECTOR).click()
+        time.sleep(1)
 
     def navigate_to_video(self, url):
         self.browser.get(url)
+        # print(self.browser.page_source)
+        # if self.browser.find_element_by_css_select('#recaptcha-anchor > div.recaptcha-checkbox-border'):
+        #     print("Recaptcha detected")
+        # else:
+        #     print("Recaptcha not detected")
         WebDriverWait(self.browser, 10).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, ScraperConfig.VIDEO_TITLE_SELECTOR))
         )
@@ -106,7 +120,7 @@ class YoutubeScraper:
 
     def load_next_page(self):
         self.browser.execute_script("window.scrollTo(0, Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight))")
-        WebDriverWait(self.browser, 10).until(ElementsLengthChanges(ScraperConfig.VIDEOS_SELECTOR))
+        WebDriverWait(self.browser, 3).until(ElementsLengthChanges(ScraperConfig.VIDEOS_SELECTOR))
 
     def accept_cookies(self):
         self.browser.find_element_by_xpath('//*[@id="yDmH0d"]/c-wiz/div/div/div/div[2]/div[1]/div[3]/div[1]/form[2]/div/div/button/span').click()
@@ -114,30 +128,28 @@ class YoutubeScraper:
     def perform_random_mouse_action(self):
         # Get the browser window size
         window_size = self.browser.execute_script("return [window.innerWidth, window.innerHeight]")
-        time.sleep(random.randint(0, 2))
-        # # Generate a random mouse position within the window
-        x = random.randint(0, window_size[0])
-        y = random.randint(0, window_size[1])
+        time.sleep(random.randint(1, 2))
 
-        # Move the mouse to the random position and perform a random action
-        action_chains = ActionChains(self.browser)
-        action_chains.move_by_offset(x, y)
-        # if random.random() < 0.5:
-        #     # Move the mouse in a random direction
-        #     direction = random.choice(['up', 'down', 'left', 'right'])
-        #     if direction == 'up':
-        #         action_chains.move_by_offset(0, -10)
-        #     elif direction == 'down':
-        #         action_chains.move_by_offset(0, 10)
-        #     elif direction == 'left':
-        #         action_chains.move_by_offset(-10, 0)
-        #     elif direction == 'right':
-        #         action_chains.move_by_offset(10, 0)
-        # else:
-            # Scroll the page
+        if random.random() < 0.5:
+            self.browser.find_element_by_css_selector(ScraperConfig.MUTE_BUTTON_SELECTOR).click()
+            time.sleep(
+                random.randint(ScraperConfig.max_random_await_in_seconds, ScraperConfig.max_random_await_in_seconds))
+
+        # mouse_position = self.browser.execute_script(
+        #     "return [window.scrollX + window.event.clientX, window.scrollY + window.event.clientY];")
+        # # # Generate a random mouse position within the window
+        # x = random.randint(-mouse_position[0], window_size[0]-mouse_position[0])
+        # y = random.randint(-mouse_position[1], window_size[1]-mouse_position[1])
+        #
+        # # Move the mouse to the random position and perform a random action
+        # action_chains.move_by_offset(x, y)
+        # action_chains.perform()
+
         scroll_amount = random.randint(0, window_size[1])
         self.browser.execute_script(f"window.scrollBy(0, {scroll_amount})")
         time.sleep(random.randint(ScraperConfig.max_random_await_in_seconds, ScraperConfig.max_random_await_in_seconds ))
-        action_chains.perform()
+        scroll_amount = random.randint(- window_size[1], 0)
+        self.browser.execute_script(f"window.scrollBy(0, {scroll_amount})")
+        time.sleep(random.randint(ScraperConfig.max_random_await_in_seconds, ScraperConfig.max_random_await_in_seconds))
 
 

@@ -11,7 +11,10 @@ from script.scrape.ScraperConfig import ScraperConfig
 
 class BrowserManager:
     @staticmethod
-    def is_proxy_working(browser, used_proxy):
+    def is_proxy_working( used_proxy):
+        if used_proxy is None:
+            return False
+        browser = BrowserManager.build_browser(enable_ui=True, proxy_ip=used_proxy)
         print(f"Testing proxy with ip {used_proxy}")
         try:
             browser.get('https://whatismyipaddress.com/de/meine-ip')
@@ -39,6 +42,7 @@ class BrowserManager:
         except:
             print(f'Failed to get IP address')
 
+        browser.quit()
         # Compare the IP addresses
         return ip_address == used_proxy.split(':')[0]
 
@@ -75,19 +79,17 @@ class BrowserManager:
     def get_working_proxies(source: list[str]) -> list[str]:
         working_proxies: list[str] = list()
         for proxy in source:
-            browser = BrowserManager.build_browser(enable_ui=True, proxy_ip=proxy)
-            if BrowserManager.is_proxy_working(browser, proxy):
+            if BrowserManager.is_proxy_working( proxy):
                 working_proxies.append(proxy)
-            browser.quit()
         return working_proxies
 
     @staticmethod
     def clear_proxy_list():
-        with open(ScraperConfig.http_proxies, 'r') as proxies:
-            current_proxy_ip: list[str] = [proxy.strip() for proxy in proxies.readlines()]
-            working_proxies = [proxy+'\n' for proxy in BrowserManager.get_working_proxies(current_proxy_ip)]
-        with open(ScraperConfig.working_http_proxies, 'w') as proxies:
-            proxies.writelines(working_proxies)
+        with open(ScraperConfig.http_proxies, 'r') as proxy_list_file:
+            proxy_list: list[str] = [proxy.strip() for proxy in proxy_list_file.readlines()]
+            working_proxies = [proxy+'\n' for proxy in BrowserManager.get_working_proxies(proxy_list)]
+        with open(ScraperConfig.working_http_proxies, 'w') as proxy_list_file:
+            proxy_list_file.writelines(working_proxies)
 
     # @staticmethod
     # async def solve_challenge(page):
