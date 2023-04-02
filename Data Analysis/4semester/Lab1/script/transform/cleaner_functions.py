@@ -1,3 +1,6 @@
+from datetime import datetime
+
+
 def remove_abbreviation(string):
     if 'K' in string or 'k' in string:
         return int(float(string[:-1]) * 1000)
@@ -19,6 +22,10 @@ def remove_commas(val):
             return val
     else:
         return val
+
+def transform_date_to_iso(val):
+    return datetime.strptime(val, '%b %d, %Y').strftime('%Y-%m-%d')
+
 
 
    

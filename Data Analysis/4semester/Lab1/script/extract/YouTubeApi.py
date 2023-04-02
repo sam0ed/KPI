@@ -50,45 +50,73 @@ class YouTubeApi:
         return comments_df
 
 
-# cost=1*len(video_ids)/50
-def get_videos(self, video_ids, video_attr: list[str]) -> pd.DataFrame:
-    MAX_COUNT_IN_BATCH = 50
-    videos_df = pd.DataFrame(columns=[col_name.split('.')[-1] for col_name in video_attr])
-    rows = []
-    root_attr_name = video_attr[0].split('.')[0]
-    batch_list = [video_ids[i:i + MAX_COUNT_IN_BATCH] for i in range(0, len(video_ids), MAX_COUNT_IN_BATCH)]
+    # cost=1*len(video_ids)/50
+    def get_videos(self, video_ids, video_attr: list[str]) -> pd.DataFrame:
+        MAX_COUNT_IN_BATCH = 50
+        videos_df = pd.DataFrame(columns=[col_name.split('.')[-1] for col_name in video_attr])
+        rows = []
+        root_attr_name = video_attr[0].split('.')[0]
+        batch_list = [video_ids[i:i + MAX_COUNT_IN_BATCH] for i in range(0, len(video_ids), MAX_COUNT_IN_BATCH)]
 
-    for batch in batch_list:
-        parts_to_extract = [part for i, part in enumerate(ExtractConfig.available_video_part_values) if
-                            i in ExtractConfig.video_part_indexes]
-        batch = ','.join(batch)
-        video_stats = self.resource.videos().list(
+        for batch in batch_list:
+            parts_to_extract = [part for i, part in enumerate(ExtractConfig.available_video_part_values) if
+                                i in ExtractConfig.video_part_indexes]
+            batch = ','.join(batch)
+            video_stats = self.resource.videos().list(
+                part=parts_to_extract,
+                id=batch
+            ).execute()
+
+            for item in video_stats[root_attr_name]:
+                row = {}
+                for col_name in video_attr:
+                    split_attr_names = col_name.split('.')
+                    eval_str = None
+                    if not split_attr_names[1:-1]:
+                        eval_str = 'item.get("' + split_attr_names[-1] + '")'
+                    else:
+                        eval_str = 'item["' + '"]["'.join(split_attr_names[1:-1]) + '"].get("' + split_attr_names[
+                            -1] + '")'
+                    value = eval(eval_str)
+                    row[split_attr_names[-1]] = value
+
+                rows.append(row)
+
+        videos_df = pd.concat([videos_df, pd.DataFrame(rows)])
+        return videos_df
+
+    def get_categories(self, category_ids, category_attr: list[str]) -> pd.DataFrame:
+        categories_df = pd.DataFrame(columns=[categorie_name.split('.')[-1] for categorie_name in category_attr])
+        rows = []
+        root_attr_name = 'items'
+
+        parts_to_extract = [part for i, part in enumerate(ExtractConfig.available_category_part_values) if
+                            i in ExtractConfig.category_attr_indexes]
+        ids_to_extract =','.join(map(str,category_ids.categoryId.tolist()))
+        category_stats = self.resource.videoCategories().list(
             part=parts_to_extract,
-            id=batch
+            id=ids_to_extract,
         ).execute()
 
-        for item in video_stats[root_attr_name]:
+        for item in category_stats[root_attr_name]:
             row = {}
-            for col_name in video_attr:
+            for col_name in category_attr:
                 split_attr_names = col_name.split('.')
                 eval_str = None
                 if not split_attr_names[1:-1]:
                     eval_str = 'item.get("' + split_attr_names[-1] + '")'
                 else:
-                    eval_str = 'item["' + '"]["'.join(split_attr_names[1:-1]) + '"].get("' + split_attr_names[
-                        -1] + '")'
+                    eval_str = 'item["' + '"]["'.join(split_attr_names[1:-1]) + '"].get("' + split_attr_names[-1] + '")'
                 value = eval(eval_str)
                 row[split_attr_names[-1]] = value
 
             rows.append(row)
+        categories_df = pd.concat([categories_df, pd.DataFrame(rows)])
+        return categories_df
 
-    videos_df = pd.concat([videos_df, pd.DataFrame(rows)])
-    return videos_df
-
-
-def get_channel_id(self, channel_name: str) -> str:
-    return self.resource.search().list(
-        q=channel_name,
-        type='channel',
-        part='id'
-    ).execute()['items'][0]['id']['channelId']
+    def get_channel_id(self, channel_name: str) -> str:
+        return self.resource.search().list(
+            q=channel_name,
+            type='channel',
+            part='id'
+        ).execute()['items'][0]['id']['channelId']

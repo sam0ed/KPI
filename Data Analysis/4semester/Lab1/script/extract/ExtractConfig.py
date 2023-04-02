@@ -9,13 +9,16 @@ class ExtractConfig:
     available_video_part_values: list[str] = ['contentDetails', 'id', 'liveStreamingDetails', 'recordingDetails',
                                               'snippet', 'statistics', 'status', 'topicDetails']
     available_channel_part_values: list[str] = ["snippet", "contentDetails", "statistics", "status"]
-
-    comment_attr_indexes = [12, 13, 15, 18, 21, 22, 25]
-    video_attr_indexes = indexes = [4, 6, 7, 8, 9, 24, 25, 37, 42, 43, 45, 50, 51, 53]
+    available_category_part_values = ['id', 'snippet']
 
     comment_part_indexes = [2]
     video_part_indexes = [0, 1, 4, 5]
-    channel_part_values = [0, 1, 2, 3]
+    channel_part_indexes = [0, 1, 2, 3]
+    category_part_indexes = [0, 1]
+
+    comment_attr_indexes = [12, 13, 15, 18, 21, 22, 25]
+    video_attr_indexes = indexes = [4, 6, 7, 8, 9, 24, 25, 37, 42, 43, 45, 50, 51, 53]
+    category_attr_indexes = [4,5,7]
 
     path_to_api_keys = r'G:\My Drive\api_keys.ini'
     key_owner = 'Google'

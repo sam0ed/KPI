@@ -1,0 +1,8 @@
+kind
+etag
+items.kind
+items.etag
+items.id
+items.snippet.title
+items.snippet.assignable
+items.snippet.channelId

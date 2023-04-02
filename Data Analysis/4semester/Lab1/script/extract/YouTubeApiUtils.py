@@ -8,6 +8,7 @@ class YouTubeApiUtils:
         # constants
         self._DUMMY_VIDEO_ID = 'PHgc8Q6qTjc'
         self._DUMMY_CHANNEL_ID = 'UC-lHJZR3Gqxm24_Vd_AJ5Yw'
+        self._DUMMY_CATEGORY_ID = '10'
         self._DUMMY_PAGE_TOKEN = None
         self._MAX_RESULTS = 1
 
@@ -76,3 +77,11 @@ class YouTubeApiUtils:
             id=','.join(video_ids),
             maxResults=self._MAX_RESULTS
         ).execute())
+
+    def get_available_category_attr_names(self):
+        return get_json_attr_names(self._RESOURCE.videoCategories().list(
+            part=[value for i, value in enumerate(config.available_category_part_values) if
+                  i in config.comment_part_indexes],
+            id=self._DUMMY_CATEGORY_ID,
+        ).execute())
+
