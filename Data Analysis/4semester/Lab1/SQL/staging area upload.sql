@@ -1,5 +1,5 @@
 CREATE SCHEMA staging_area;
--- DROP SCHEMA staging_area CASCADE ;
+
 
 DROP TABLE IF EXISTS staging_area.video_info;
 CREATE TABLE staging_area.video_info
@@ -116,5 +116,3 @@ CREATE TABLE staging_area.country_info (
 COPY staging_area.country_info (population_2020, yearly_change, world_share, country, users_amount)
 FROM 'C:\Users\vikto\Workspace\GitRepos\KPI\Data Analysis\4semester\Lab1\data\cleaned\merged_country_data.csv' DELIMITER ',' CSV HEADER;
 
-
--- SHOW config_file;
