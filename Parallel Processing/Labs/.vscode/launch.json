@@ -1,0 +1,133 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Task4Test",
+            "request": "launch",
+            "mainClass": "lab2.test.Task4Test",
+            "projectName": "lab1"
+        },
+        {
+            "type": "java",
+            "name": "Task3Test",
+            "request": "launch",
+            "mainClass": "lab2.test.Task3Test",
+            "projectName": "lab1"
+        },
+        {
+            "type": "java",
+            "name": "Main",
+            "request": "launch",
+            "mainClass": "lab2.Main",
+            "projectName": "lab1"
+        },
+        {
+            "type": "java",
+            "name": "ThreadSwitch",
+            "request": "launch",
+            "mainClass": "kr1.ThreadSwitch",
+            "projectName": "lab1"
+        },
+        {
+            "type": "java",
+            "name": "ThreadStateSwitcher",
+            "request": "launch",
+            "mainClass": "kr1.ThreadStateSwitcher",
+            "projectName": "lab1"
+        },
+        {
+            "type": "java",
+            "name": "TrafficSimulation",
+            "request": "launch",
+            "mainClass": "kr1.TrafficSimulation",
+            "projectName": "lab1"
+        },
+        {
+            "type": "java",
+            "name": "ArraySummer",
+            "request": "launch",
+            "mainClass": "kr1.ArraySummer",
+            "projectName": "lab1"
+        },
+        {
+            "type": "java",
+            "name": "ParallelArraySum",
+            "request": "launch",
+            "mainClass": "kr1.ParallelArraySum",
+            "projectName": "lab1"
+        },
+        {
+            "type": "java",
+            "name": "Buffer",
+            "request": "launch",
+            "mainClass": "kr1.Buffer",
+            "projectName": "lab1"
+        },
+        {
+            "type": "java",
+            "name": "StringGenerator",
+            "request": "launch",
+            "mainClass": "kr1.StringGenerator",
+            "projectName": "lab1"
+        },
+        {
+            "type": "java",
+            "name": "Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Main",
+            "request": "launch",
+            "mainClass": "kr1.Main",
+            "projectName": "lab1"
+        },
+        {
+            "type": "java",
+            "name": "Bounce",
+            "request": "launch",
+            "mainClass": "lab1.task1.Bounce",
+            "projectName": "lab1"
+        },
+        {
+            "type": "java",
+            "name": "Bounce(1)",
+            "request": "launch",
+            "mainClass": "lab1.task2.Bounce",
+            "projectName": "lab1"
+        },
+        {
+            "type": "java",
+            "name": "Bounce(2)",
+            "request": "launch",
+            "mainClass": "lab1.task3.Bounce",
+            "projectName": "lab1"
+        },
+        {
+            "type": "java",
+            "name": "Bounce(3)",
+            "request": "launch",
+            "mainClass": "lab1.task4.Bounce",
+            "projectName": "lab1"
+        },
+        {
+            "type": "java",
+            "name": "Main(1)",
+            "request": "launch",
+            "mainClass": "lab1.task5.Main",
+            "projectName": "lab1"
+        },
+        {
+            "type": "java",
+            "name": "Main(2)",
+            "request": "launch",
+            "mainClass": "lab1.task6.Main",
+            "projectName": "lab1"
+        }
+    ]
+}
