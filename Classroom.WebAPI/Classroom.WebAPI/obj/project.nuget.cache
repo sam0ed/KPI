@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "dgSpecHash": "TueYyrZrLZMtxz+Qa5MmxzeoBRI+NzImy3NCcmeEYdcdWc4mcTYWqUWvPq79l4xlCE3BqeFdvBAFtxkIXyBYZQ==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\vikto\\Workspace\\GitRepos\\KPI\\Classroom.WebAPI\\Classroom.WebAPI\\Classroom.WebAPI.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\vikto\\.nuget\\packages\\microsoft.openapi\\1.2.3\\microsoft.openapi.1.2.3.nupkg.sha512",
+    "C:\\Users\\vikto\\.nuget\\packages\\swashbuckle.aspnetcore.annotations\\6.5.0\\swashbuckle.aspnetcore.annotations.6.5.0.nupkg.sha512",
+    "C:\\Users\\vikto\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\6.5.0\\swashbuckle.aspnetcore.swagger.6.5.0.nupkg.sha512",
+    "C:\\Users\\vikto\\.nuget\\packages\\swashbuckle.aspnetcore.swaggergen\\6.5.0\\swashbuckle.aspnetcore.swaggergen.6.5.0.nupkg.sha512",
+    "C:\\Users\\vikto\\.nuget\\packages\\swashbuckle.aspnetcore.swaggerui\\6.5.0\\swashbuckle.aspnetcore.swaggerui.6.5.0.nupkg.sha512"
+  ],
+  "logs": []
+}
