@@ -13,6 +13,7 @@ DelayFn = Callable[..., float]
 
 @dataclass(eq=False)
 class NodeMetrics(Metrics):
+    """Contains metrics of a specific node"""
     node_name: str = field(init=False, default='')
     num_in: int = field(init=False, default=0)
     num_out: int = field(init=False, default=0)
@@ -26,7 +27,7 @@ class NodeMetrics(Metrics):
 
 
 class Node(ABC, SupportsDict, Generic[I, NM]):
-    num_nodes: int = 0
+    num_nodes: int = 0 # Class variable to count the total number of existing nodes
 
     def __init__(self,
                  delay_fn: DelayFn,
@@ -50,6 +51,7 @@ class Node(ABC, SupportsDict, Generic[I, NM]):
 
     @property
     def current_items(self) -> Iterable[I]:
+        """non-abstract implementation is intentional. It provides a default behavior while allowing subclasses to customize it as needed."""
         return []
 
     def start_action(self, item: I) -> None:
@@ -87,6 +89,9 @@ class Node(ABC, SupportsDict, Generic[I, NM]):
         return f'{self.__class__.__name__}{self.num_nodes}'
 
     def _get_delay(self, **kwargs: Any) -> float:
+        """
+        Extracts delay parameters from kwargs and calls delay_fn with them.
+        The purpose of this method is to create a common to all types of nodes internal interface for getting a time delay based on any possible distribution function passed into node's constructor."""
         return self.delay_fn(**{name: value for name, value in kwargs.items() if name in self.delay_params})
 
     def _predict_next_time(self, **kwargs: Any) -> float:

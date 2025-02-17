@@ -31,4 +31,5 @@ class BankTransitionNode(BaseTransitionNode[I, NM]):
         }
 
     def _get_next_node(self, _: I) -> Optional[Node[I, NodeMetrics]]:
+        """Determines to which bank window the car should go next."""
         return self.first if self.first.queuelen <= self.second.queuelen else self.second

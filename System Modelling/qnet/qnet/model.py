@@ -20,6 +20,9 @@ class Nodes(dict[str, Node[I, NodeMetrics]]):
 
     @staticmethod
     def from_node_tree_root(node_tree_root: Node[I, NodeMetrics]) -> 'Nodes[I]':
+        """
+        static method from_node_tree_root to create a Nodes instance from a root node by traversing the node tree.
+        """
         nodes = Nodes[I]()
 
         def process_node(parent: Node[I, NodeMetrics]) -> None:

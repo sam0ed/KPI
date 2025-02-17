@@ -30,6 +30,13 @@ class ActionType(str, Enum):
 
 @dataclass(eq=False)
 class ActionRecord(SupportsDict, Generic[T]):
+    """
+    The ActionRecord class is used to keep track of actions performed by nodes on items in the simulation.
+    Each action is recorded in Item history with following fields:
+    - node involved,
+    - the type of action,
+    - and the time it occurred.
+    """
     node: T
     action_type: ActionType
     time: float
@@ -40,6 +47,10 @@ class ActionRecord(SupportsDict, Generic[T]):
 
 @dataclass(eq=False)
 class Item(SupportsDict):
+    """
+    Item represents an item that moves through the system, records actions performed on it, and tracks its time in the system.
+    The Item class focuses on representing the item and tracking its history.
+    """
     id: str
     created_time: float = field(repr=False)
     current_time: float = field(init=False, repr=False)
@@ -66,6 +77,7 @@ class Metrics(Protocol):
     passed_time: float = field(init=False, default=0)
 
     def to_dict(self) -> dict[str, Any]:
+        """will include all properties of the class that implements the Metrics protocol"""
         metrics_dict = {
             name: getattr(self, name)
             for name, _ in inspect.getmembers(type(self),
@@ -80,11 +92,13 @@ class Metrics(Protocol):
             elif not isinstance(param.default_factory, _MISSING_TYPE):
                 default = param.default_factory()
             else:
+                # If neither a default value nor a default factory is found, skip setting the attribute by using continue
                 continue
             setattr(self, param.name, default)
 
 
 class BoundedCollection(ABC, SupportsDict, Generic[T]):
+    """The BoundedCollection class is an abstract base class (ABC) that defines a collection with optional size constraints."""
 
     @abstractmethod
     def __len__(self) -> int:
@@ -130,6 +144,10 @@ class BoundedCollection(ABC, SupportsDict, Generic[T]):
 
 
 class Queue(BoundedCollection[T]):
+    """
+    We only need this custom abstraction on top of deque(FIFO - First In, First Out) to ensure that it adheres to a specific interface(BoundedCollection)
+    and can be used interchangeably with other collections that implement the same interface.
+    """
 
     def __init__(self, maxlen: Optional[int] = None) -> None:
         self.queue: deque[T] = deque(maxlen=maxlen)
@@ -167,6 +185,10 @@ class LIFOQueue(Queue[T]):
 
 
 class MinHeap(BoundedCollection[T]):
+    """
+    In the context of a simulation, the MinHeap class is used to manage and prioritize events or tasks based on their scheduled times or priorities. 
+    By maintaining a heap structure, the MinHeap ensures that the next event to be processed is always the one with the earliest scheduled time or highest priority.
+    """
 
     def __init__(self, maxlen: Optional[int] = None) -> None:
         self._maxlen = maxlen
@@ -205,10 +227,26 @@ class MinHeap(BoundedCollection[T]):
         return heapq.heappop(self.heap)
 
 
+"""
+type used in the priority queeue:
+A tuple with a priority value and an item: (priority, item)
+A tuple with a priority value, a counter (for FIFO or LIFO behavior), and an item: (priority, counter, item)
+"""
 PriorityTuple = Union[tuple[SupportsFloat, T], tuple[SupportsFloat, int, T]]
 
 
 class PriorityQueue(MinHeap[T]):
+    """
+    The heap orders elements based on the first element of the tuple (the priority). If the priorities are equal, the second element (the counter) is used to maintain insertion order.
+
+    Without FIFO:
+    - The heap orders elements based on the priority.
+    - If two items have the same priority, their order in the heap is undefined.
+    
+    With FIFO:
+    - The heap orders elements based on the priority.
+    - If two items have the same priority, the counter ensures that the item added first is processed first (FIFO).
+    """
 
     def __init__(self, priority_fn: Callable[[T], SupportsFloat], fifo: Optional[bool] = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -216,10 +254,15 @@ class PriorityQueue(MinHeap[T]):
         self.priority_fn = priority_fn
 
         if self.fifo is not None:
+            # every time we push to the heap, we will increment the counter
             self.counter = itertools.count()
 
     @property
     def data(self) -> Iterable[T]:
+        """
+        This property returns an iterable of the original items in the priority queue, ignoring the priority and counter values.
+        The [-1] index accesses the last element of the tuple, which is the original item.
+        """
         return (cast(PriorityTuple[T], item)[-1] for item in self.heap)
 
     def push(self, item: T) -> Optional[T]:
@@ -229,6 +272,7 @@ class PriorityQueue(MinHeap[T]):
         else:
             count = next(self.counter)
             element = (priority, count if self.fifo else -count, item)
+        # The cast function is used to signal the type checker that element is of type T
         return super().push(cast(T, element))
 
     def pop(self) -> T:

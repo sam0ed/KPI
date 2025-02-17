@@ -11,57 +11,61 @@ from qnet.logger import CLILogger
 from qnet.model import Model, ModelMetrics, Nodes, Evaluation, Verbosity
 
 
-def run_simulation() -> None:
-    incoming_cars = FactoryNode[NodeMetrics](name='1_incoming_cars',
+def simulate() -> None:
+    car_spawner = FactoryNode[NodeMetrics](name='1_car_spawner',
                                              metrics=NodeMetrics(),
                                              delay_fn=partial(random.expovariate, lambd=1.0 / 0.5))
-    transition = BankTransitionNode[Item, NodeMetrics](name='2_first_vs_second', metrics=NodeMetrics())
-    checkout1 = BankQueueingNode[Item](name='3_first_checkout',
+    switch = BankTransitionNode[Item, NodeMetrics](name='2_switch', metrics=NodeMetrics())
+    cashier1 = BankQueueingNode[Item](name='3_cashier1',
                                        min_queuelen_diff=2,
                                        queue=Queue(maxlen=3),
                                        metrics=BankQueueingMetrics(),
                                        channel_pool=ChannelPool[Item](max_channels=1),
                                        delay_fn=partial(random.expovariate, lambd=1.0 / 0.3))
-    checkout2 = BankQueueingNode[Item](name='4_second_checkout',
+    cashier2 = BankQueueingNode[Item](name='4_cashier2',
                                        min_queuelen_diff=2,
                                        queue=Queue(maxlen=3),
                                        metrics=BankQueueingMetrics(),
                                        channel_pool=ChannelPool[Item](max_channels=1),
                                        delay_fn=partial(random.expovariate, lambd=1.0 / 0.3))
 
-    incoming_cars.set_next_node(transition)
-    transition.set_next_nodes(first=checkout1, second=checkout2)
-    checkout1.set_neighbor(checkout2)
+    car_spawner.set_next_node(switch)
+    switch.set_next_nodes(first=cashier1, second=cashier2)
+    cashier1.set_neighbor(cashier2)
 
     # Initial conditions
-    checkout1.add_task(Task[Item](item=Item(id=incoming_cars.next_id, created_time=0.0),
+    # Adding a car to each cashier
+    cashier1.add_task(Task[Item](item=Item(id=car_spawner.next_id, created_time=0.0),
                                   next_time=random.normalvariate(mu=1.0, sigma=0.3)))
-    checkout2.add_task(Task[Item](item=Item(id=incoming_cars.next_id, created_time=0.0),
+    cashier2.add_task(Task[Item](item=Item(id=car_spawner.next_id, created_time=0.0),
                                   next_time=random.normalvariate(mu=1.0, sigma=0.3)))
+    
+    #adding 2 cars to each queue
     for _ in range(2):
-        checkout1.queue.push(Item(id=incoming_cars.next_id, created_time=0.0))
-    for _ in range(2):
-        checkout2.queue.push(Item(id=incoming_cars.next_id, created_time=0.0))
-    incoming_cars.next_time = 0.1
+        cashier1.queue.push(Item(id=car_spawner.next_id, created_time=0.0))
+        cashier2.queue.push(Item(id=car_spawner.next_id, created_time=0.0))
+    car_spawner.next_time = 0.1
 
-    def total_failure_proba(_: Model[Item, ModelMetrics]) -> float:
-        metrics1 = checkout1.metrics
-        metrics2 = checkout2.metrics
+    def failure_prob(_: Model[Item, ModelMetrics]) -> float:
+        metrics1 = cashier1.metrics
+        metrics2 = cashier2.metrics
         return (metrics1.num_failures + metrics2.num_failures) / max(metrics1.num_in + metrics2.num_in, 1)
 
-    def num_switched_checkout(_: Model[Item, ModelMetrics]) -> int:
-        return checkout1.metrics.num_from_neighbor + checkout2.metrics.num_from_neighbor
+    def count_switch_cashier(_: Model[Item, ModelMetrics]) -> int:
+        return cashier1.metrics.num_from_neighbor + cashier2.metrics.num_from_neighbor
 
     def mean_cars_in_bank(_: Model[Item, ModelMetrics]) -> float:
-        metrics1 = checkout1.metrics
-        metrics2 = checkout2.metrics
+        # mean_channels_load is the sum of average number of cars in the channels of the cashier
+        # mean_queuelen is the sum of average number of cars in the queue of the cashier
+        metrics1 = cashier1.metrics
+        metrics2 = cashier2.metrics
         return metrics1.mean_channels_load + metrics1.mean_queuelen + metrics2.mean_channels_load + metrics2.mean_queuelen
 
-    model = Model(nodes=Nodes[Item].from_node_tree_root(incoming_cars),
+    model = Model(nodes=Nodes[Item].from_node_tree_root(car_spawner),
                   evaluations=[
-                      Evaluation[float](name='total_failure_proba', evaluate=total_failure_proba),
+                      Evaluation[float](name='failure_prob', evaluate=failure_prob),
                       Evaluation[float](name='mean_cars_in_bank', evaluate=mean_cars_in_bank),
-                      Evaluation[int](name='num_switched_checkout', evaluate=num_switched_checkout),
+                      Evaluation[int](name='count_switch_cashier', evaluate=count_switch_cashier),
                   ],
                   metrics=ModelMetrics[Item](),
                   logger=CLILogger[Item]())
@@ -69,4 +73,4 @@ def run_simulation() -> None:
 
 
 if __name__ == '__main__':
-    run_simulation()
+    simulate()

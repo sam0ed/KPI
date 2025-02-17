@@ -11,6 +11,7 @@ from .utils import filter_none
 class BaseTransitionNode(Node[I, NM]):
 
     def __init__(self, delay_fn: DelayFn = lambda: 0, **kwargs: Any) -> None:
+        """default delay function is set to 0 as transitions have no delay, it also doesn't have next time or metrics object"""
         super().__init__(delay_fn=delay_fn, **kwargs)
         self.item: Optional[I] = None
         self.next_time = INF_TIME
@@ -41,6 +42,12 @@ class BaseTransitionNode(Node[I, NM]):
         return {'item': self.item, 'next_node': self.next_node.name if self.next_node else None}
 
     def _before_time_update_hook(self, time: float) -> None:
+        """
+        Consider a scenario where a node processes an item and determines the next node based on certain conditions.
+        At the end of the time step, the simulation advances to the next time step.
+        Before this happens, the _before_time_update_hook method is called to reset the state of the node,
+        ensuring that any decisions made in the new time step are based on the current state of the simulation, not on stale information from the previous time step
+        """
         self.next_node = None
         super()._before_time_update_hook(time)
 

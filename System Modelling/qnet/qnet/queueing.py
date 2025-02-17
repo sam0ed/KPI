@@ -60,6 +60,9 @@ class QueueingMetrics(NodeMetrics):
 
 @dataclass(order=True, unsafe_hash=True)
 class Task(SupportsDict, Generic[T]):
+    """
+    The Task class focuses on scheduling and managing the processing of items in the queueing system.
+    """
     id_gen: ClassVar[Iterator[int]] = itertools.count()
 
     id: int = field(init=False, repr=False, compare=False)
@@ -82,6 +85,10 @@ class Channel(SupportsDict, Generic[T]):
 
 
 class ChannelPool(SupportsDict, Generic[T]):
+    """
+    Uses minheap from common.py, 
+    Manages the allocation and deallocation of channels for processing tasks.
+    """
 
     def __init__(self, max_channels: Optional[int] = None) -> None:
         self.max_channels = max_channels

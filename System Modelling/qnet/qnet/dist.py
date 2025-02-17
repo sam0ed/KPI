@@ -19,6 +19,10 @@ def erlang(lambd: float, k: int) -> float:
 
 
 class _KeyWrapper(Generic[T, V], Sequence[V], Sized):
+    """
+    This is a helper class that wraps a sequence and provides a way to access the sequence elements using a key function.
+    This class is used to facilitate binary search operations on sequences based on a key function.
+    """
 
     def __init__(self, sequence: Sequence[T], key: Callable[[T], V]) -> None:
         self.key = key
@@ -48,10 +52,14 @@ class EmpiricalPoint:
 
 
 def empirical(points: list[EmpiricalPoint]) -> float:
+    """
+    generates a random value based on an empirical distribution defined by a list of EmpiricalPoint instances. This is useful for sampling from a distribution that is defined by observed data rather than a theoretical model.
+    """
     num_points = len(points)
     assert num_points >= 2 and points[0].cum_proba == 0 and points[-1].cum_proba == 1, points
     proba = random.uniform(0, 1)
     start_idx = bisect.bisect_right(_KeyWrapper(points, key=lambda point: point.cum_proba), proba) - 1
     end_idx = min(start_idx + 1, num_points - 1)
     start, end = points[start_idx], points[end_idx]
+    #linear interpolation between the two points for which we know the cummulative probability to get the actual value which we want to return. 
     return start.value + (end.value - start.value) / (end.cum_proba - start.cum_proba) * (proba - start.cum_proba)

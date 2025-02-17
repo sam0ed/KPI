@@ -13,16 +13,18 @@ from qnet.model import Model, Nodes
 
 
 def _priority_fn(item: HospitalItem) -> int:
-    return int(item.sick_type != SickType.FIRST and not item.as_first_sick)
+    return int(item.sick_type != SickType.FIRST and not item.as_first_sick) # returns 0(highest priority if item is first sick)
 
 
 def run_simulation() -> None:
     # Processing nodes
     sick_type_probas = {SickType.FIRST: 0.5, SickType.SECOND: 0.1, SickType.THIRD: 0.4}
-    incoming_sick_people = HospitalFactoryNode[NodeMetrics](name='1_sick_people',
+    sick_spawner = HospitalFactoryNode[NodeMetrics](name='1_sick_spawner',
                                                             probas=sick_type_probas,
                                                             metrics=NodeMetrics(),
                                                             delay_fn=partial(random.expovariate, lambd=1.0 / 15))
+    
+    
     at_emergency_mean = {SickType.FIRST: 15, SickType.SECOND: 40, SickType.THIRD: 30}
     at_emergency = QueueingNode[HospitalItem, QueueingMetrics](
         name='2_at_emergency',
@@ -30,7 +32,7 @@ def run_simulation() -> None:
         metrics=QueueingMetrics(),
         channel_pool=ChannelPool(max_channels=2),
         delay_fn=lambda item: random.expovariate(lambd=1.0 / at_emergency_mean[item.sick_type]))
-    emergency_transition = EmergencyTransitionNode[NodeMetrics](name='3_chamber_vs_reception', metrics=NodeMetrics())
+    emergency_switch = EmergencyTransitionNode[NodeMetrics](name='3_emergency_switch', metrics=NodeMetrics())
     to_chumber = QueueingNode[HospitalItem, QueueingMetrics](name='4_to_chumber',
                                                              queue=Queue[HospitalItem](),
                                                              metrics=QueueingMetrics(),
@@ -54,16 +56,16 @@ def run_simulation() -> None:
     testing_transition = TestingTransitionNode[NodeMetrics](name='8_after_testing', metrics=NodeMetrics())
 
     # Connections
-    incoming_sick_people.set_next_node(at_emergency)
-    at_emergency.set_next_node(emergency_transition)
-    emergency_transition.set_next_nodes(chumber=to_chumber, reception=to_reception)
+    sick_spawner.set_next_node(at_emergency)
+    at_emergency.set_next_node(emergency_switch)
+    emergency_switch.set_next_nodes(chumber=to_chumber, reception=to_reception)
     to_reception.set_next_node(at_reception)
     at_reception.set_next_node(on_testing)
     on_testing.set_next_node(testing_transition)
     testing_transition.add_next_node(at_emergency, proba=0.2)
     testing_transition.add_next_node(None, proba=testing_transition.rest_proba)
 
-    model = Model(nodes=Nodes[HospitalItem].from_node_tree_root(incoming_sick_people),
+    model = Model(nodes=Nodes[HospitalItem].from_node_tree_root(sick_spawner),
                   logger=CLILogger[HospitalItem](),
                   metrics=HospitalModelMetrics())
     model.simulate(end_time=100000)
