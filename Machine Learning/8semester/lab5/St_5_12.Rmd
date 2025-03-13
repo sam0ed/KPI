@@ -1,0 +1,144 @@
+---
+title: "Predicting Barbell Lift Performance Using Accelerometer Data"
+author: "Team 12"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# Introduction
+
+This report details our analysis for predicting how participants perform a barbell lift exercise based on accelerometer data. The training data (`pml-training.csv`) contains a target variable `classe` indicating how correctly the exercise was performed (with 5 classes) and many sensor-derived predictors. The test dataset (`pml-testing.csv`) consists of 20 cases for which we will generate predictions.
+
+Our objectives are to:
+- Explore and preprocess the data.
+- Build a predictive model using Random Forest with 10-fold cross-validation.
+- Evaluate the model’s performance and estimate the out-of-sample error.
+- Generate predictions on the test set.
+
+# Data Loading and Exploration
+
+In this section, we load the necessary libraries and read in both the training and test datasets. We also take an initial look at the data structure and summary statistics.
+
+```{r load-data, message=FALSE, warning=FALSE}
+# Load required libraries
+library(caret)         # For modeling and cross-validation
+library(randomForest)  # For building the Random Forest model
+library(ggplot2)       # For plotting
+library(dplyr)         # For data manipulation
+
+# Read the training and test data
+train <- read.csv("data/pml-training.csv", na.strings = c("NA", "#DIV/0!"))
+test <- read.csv("data/pml-testing.csv", na.strings = c("NA", "#DIV/0!"))
+
+# Display the dimensions and a summary of the training data
+cat("Training Data Dimensions:", dim(train), "\n")
+summary(train)
+```
+
+# Data Preprocessing
+
+We now preprocess the data by removing columns with excessive missing values, dropping non-informative identifier variables, and eliminating near-zero variance predictors. We also ensure that the test data includes the same predictors as the training data (excluding the target variable).
+
+```{r data-preprocessing, message=FALSE, warning=FALSE}
+# Define a threshold for acceptable missing values (e.g., < 50% missing)
+na_threshold <- 0.5
+
+# Keep only columns in the training data with less than 50% missing values
+train_clean <- train[, colMeans(is.na(train)) < na_threshold]
+
+# Remove columns that are not useful for modeling (e.g., identifiers)
+columns_to_remove <- c("X", "user_name", "raw_timestamp_part_1", "raw_timestamp_part_2",
+                       "cvtd_timestamp", "new_window", "num_window")
+train_clean <- train_clean[, !(names(train_clean) %in% columns_to_remove)]
+
+# Process test data: retain only the columns that match those in our cleaned training set.
+# Note that test data does not include the target variable 'classe'.
+test_clean <- test[, names(test) %in% names(train_clean)]
+test_clean <- test_clean[, !(names(test_clean) %in% c("classe"))]
+
+# Remove near-zero variance predictors from the training set
+nzv <- nearZeroVar(train_clean, saveMetrics = TRUE)
+train_clean <- train_clean[, !nzv$nzv]
+
+# Ensure that the test data has the same predictors as the cleaned training data
+common_cols <- intersect(names(train_clean), names(test_clean))
+test_clean <- test_clean[, common_cols]
+
+
+# Finally, remove any remaining columns with missing values in the training data
+train_clean <- train_clean[, colSums(is.na(train_clean)) == 0]
+test_clean <- test_clean[, names(train_clean)[names(train_clean) %in% names(test_clean)]]
+
+# Confirm the dimensions of the cleaned training data
+cat("Cleaned Training Data Dimensions:", dim(train_clean), "\n")
+```
+
+*Here, we carefully filter out uninformative variables and those with excessive missing data. This ensures our model is built on reliable and relevant predictors.*
+
+# Model Building and Cross Validation
+
+We now build a predictive model using the Random Forest algorithm. We use the Random Forest algorithm because it is robust in handling high-dimensional data and is less sensitive to overfitting. The model was trained using 10-fold cross-validation. This means the training data was split into 10 parts (folds), and for each iteration, the model was trained on 9 folds and tested on the remaining one. This process was repeated 10 times to ensure that the performance estimate (accuracy) is robust and not overly optimistic.
+
+```{r model-building, message=FALSE, warning=FALSE}
+set.seed(123)  # For reproducibility
+
+# Define the cross-validation settings: 10-fold cross-validation
+control <- trainControl(method = "cv", number = 10)
+
+# Train the Random Forest model using the cleaned training data
+model_rf <- train(classe ~ ., data = train_clean, method = "rf", trControl = control)
+
+# Display the model results and cross-validation performance
+print(model_rf)
+```
+The Random Forest model was tuned over different values of mtry. Cross-validation involves splitting the training data into 10 parts, training on 9 parts, and validating on the 10th. This process is repeated 10 times so that each subset is used for validation once. The reported accuracy and Kappa values are averaged over these folds, providing an estimate of the out-of-sample performance.
+
+Based on the cross-validation results (which showed nearly perfect accuracy on the training data), the model’s expected out-of-sample error is extremely low. For example, if cross-validation accuracy is approximately 99.5%, then the expected error rate on unseen data is around 0.5%. However, one should always be cautious since perfect training performance can sometimes be an indicator of overfitting. In our case, the rigorous cross-validation process helps mitigate that concern.
+
+To further evaluate the model, we generate predictions on the training set and compute a confusion matrix.
+
+```{r model-evaluation, message=FALSE, warning=FALSE}
+# Ensure the actual classes are factors
+train_clean$classe <- as.factor(train_clean$classe)
+
+# Generate predictions on the training set
+pred_train <- predict(model_rf, newdata = train_clean)
+# Convert predictions to factor and set their levels to match the actual classes
+pred_train <- factor(pred_train, levels = levels(train_clean$classe))
+
+# Now compute the confusion matrix
+conf_matrix <- confusionMatrix(pred_train, train_clean$classe)
+print(conf_matrix)
+
+```
+
+*The confusion matrix offers insight into the model's accuracy and the distribution of classification errors, helping us estimate the expected out-of-sample error.*
+
+# Predictions on Test Data
+
+With the model built and validated, we now generate predictions for the 20 test cases from the test dataset.
+```{r predictions, message=FALSE, warning=FALSE}
+# Generate predictions on the cleaned test set
+predictions <- predict(model_rf, newdata = test_clean)
+
+print(predictions)
+```
+*The predictions produced here are the final output of our analysis, corresponding to the test cases provided.*
+
+# Conclusions
+
+In this notebook, we:
+- Loaded and explored the accelerometer data.
+- Preprocessed the data by removing uninformative features, handling missing values, and eliminating near-zero variance predictors.
+- Built a Random Forest model with 10-fold cross-validation.
+- Evaluated model performance using a confusion matrix.
+- Generated predictions for the 20 test cases.
+
+The cross-validation results indicate the model performs well on the training data, and we expect similar performance on unseen data. The estimated out-of-sample error from cross-validation gives us confidence in the model's predictive ability.
+
+# Session Information
+
+To ensure reproducibility, here is the session information for the R environment used:
+```{r session-info}
+sessionInfo()
+```
